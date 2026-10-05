@@ -1,0 +1,82 @@
+#!/bin/sh
+set -eu
+[ "${SYNOPKG_PKG_STATUS:-}" != UPGRADE ] || exit 0
+REMOVAL='/usr/local/etc/sadleracme-removal'
+cleanup_error() {
+  msg='SadlerACME package removal could not safely clear all retained package settings/data. Follow the Emergency SSH removal instructions before reinstalling.'
+  echo "$msg" >&2
+  [ -z "${SYNOPKG_TEMP_LOGFILE:-}" ] || echo "$msg" > "$SYNOPKG_TEMP_LOGFILE"
+  exit 1
+}
+fresh_storage_path() (
+  # This fast path runs only as the package account. It has no root helper and
+  # never acquires root privileges, even when package storage has old residue.
+  fs_lookup=$1; fs_kind=$2
+  fs_path=$(readlink -f "$fs_lookup") || exit 1
+  case "$fs_kind" in var) fs_bucket=@appdata;; etc) fs_bucket=@appconf;; *) exit 1;; esac
+  case "$fs_path" in
+    /volume*/"$fs_bucket"/sadleracme)
+      fs_volume=${fs_path%%/"$fs_bucket"/*}; fs_number=${fs_volume#/volume}
+      case "$fs_number" in ''|*[!0-9]*) exit 1;; esac;;
+    /usr/local/packages/@appdata/sadleracme) [ "$fs_kind" = var ] || exit 1;;
+    /usr/syno/etc/packages/sadleracme) [ "$fs_kind" = etc ] || exit 1;;
+    *) exit 1;;
+  esac
+  fs_parent=${fs_path%/*}
+  while [ "$fs_parent" != / ]; do
+    [ -d "$fs_parent" ] && [ ! -L "$fs_parent" ] && [ "$(stat -c %u "$fs_parent")" = 0 ] &&
+      [ -z "$(find "$fs_parent" -maxdepth 0 \( -perm -020 -o -perm -002 \) -print)" ] || exit 1
+    fs_parent=${fs_parent%/*}; [ -n "$fs_parent" ] || fs_parent=/
+  done
+  [ ! -L "$fs_path" ] || exit 1
+  if [ -e "$fs_path" ]; then
+    [ -d "$fs_path" ] && [ "$(stat -c %u "$fs_path")" = "$package_uid" ] || exit 1
+    fs_mounts=$(awk -v p="$fs_path" '$5==p || index($5,p "/")==1 {print $5}' /proc/self/mountinfo) || exit 1
+    [ -z "$fs_mounts" ] || exit 1
+    # A root-owned legacy file must not be silently left behind. It requires
+    # the prepared root cleanup or the independent emergency tool instead.
+    fs_foreign=$(find "$fs_path" -xdev -mindepth 1 ! -user "$package_uid" -print) || exit 1
+    [ -z "$fs_foreign" ] || exit 1
+  fi
+  printf '%s\n' "$fs_path"
+)
+fresh_storage_clear() {
+  fc_path=$(fresh_storage_path "$1" "$2") || return 1
+  [ -e "$fc_path" ] || return 0
+  # Remove children depth-first without recursive rm; symlinks are unlinked.
+  # Any failed operation is caught by the final remaining scan.
+  find "$fc_path" -xdev -depth -mindepth 1 -exec /bin/sh -c '
+    expected_uid=$1; shift
+    for entry do
+      [ "$(stat -c %u "$entry")" = "$expected_uid" ] || exit 1
+      if [ -d "$entry" ] && [ ! -L "$entry" ]; then rmdir -- "$entry"; else rm -f -- "$entry"; fi
+    done
+  ' sh "$package_uid" {} \; || return 1
+  fc_remaining=$(find "$fc_path" -xdev -mindepth 1 -print) || return 1
+  [ -z "$fc_remaining" ]
+}
+if [ ! -e "$REMOVAL" ] && [ ! -L "$REMOVAL" ]; then
+  # DSM retains @appdata and @appconf by design. An untouched installation has
+  # only package-owned contents; clear these during the hook and leave the
+  # empty DSM-managed leaf directory, whose parent is not package-writable.
+  [ ! -e /usr/local/etc/sadleracme ] && [ ! -L /usr/local/etc/sadleracme ] || cleanup_error
+  package_uid=$(id -u) || cleanup_error
+  [ "$package_uid" != 0 ] && [ "$(id -un)" = sadleracme ] || cleanup_error
+  fresh_var=$(fresh_storage_path "${SYNOPKG_PKGVAR:-/var/packages/sadleracme/var}" var) || cleanup_error
+  fresh_etc=$(fresh_storage_path "${SYNOPKG_PKGETC:-/var/packages/sadleracme/etc}" etc) || cleanup_error
+  [ ! -e "$fresh_var/root" ] && [ ! -L "$fresh_var/root" ] && [ ! -e "$fresh_var/automation.requested" ] && [ ! -L "$fresh_var/automation.requested" ] || cleanup_error
+  fresh_storage_clear "$fresh_var" var || cleanup_error
+  fresh_storage_clear "$fresh_etc" etc || cleanup_error
+  exit 0
+fi
+[ ! -L "$REMOVAL" ] && [ -f "$REMOVAL/armed" ] && [ ! -L "$REMOVAL/armed" ] || exit 1
+nonce=$(cat "$REMOVAL/armed")
+case "$nonce" in ''|*[!a-f0-9]*) exit 1;; esac
+[ "${#nonce}" = 64 ] || exit 1
+# Signals intention only. The root monitor independently waits for DSM's
+# package directory to disappear before deleting application data.
+umask 077
+commit=$(mktemp "$REMOVAL/signal/commit.XXXXXXXX") || exit 1
+printf '%s\n' "$nonce" > "$commit"
+mv -f "$commit" "$REMOVAL/signal/commit"
+exit 0

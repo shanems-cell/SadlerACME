@@ -1,0 +1,22 @@
+Workflow source: src/ui/workflow.js
+PASS: New temporary processing retains its started wording and exit cleanup
+PASS: Reused temporary processing is not described as permanent
+PASS: Reused temporary processing removes its task before cancelling the lease on exit
+PASS: Expired reused task is still removed on exit without restarting or cancelling an absent lease
+PASS: Reused task ownership survives a failed readiness receipt for explicit cleanup
+PASS: Failed saved temporary task remains an explicit cleanup responsibility
+PASS: Failed permanent startup is not mistaken for a temporary cleanup responsibility
+PASS: Established permanent automation is reused and untouched by wizard exit
+PASS: Merely viewing a wizard does not claim a temporary task it never started or reused
+PASS: Permanent takeover prevents lease cancellation during later temporary-task cleanup
+PASS: Cancelling DSM deletion approval keeps the wizard and cleanup obligation for explicit retry
+PASS: Rejected task deletion does not close the wizard or claim cleanup succeeded
+PASS: Failed lease cleanup leaves the wizard open and can be explicitly retried
+PASS: New worker expiry clears only stale readiness and offers Restart Worker
+PASS: Reused worker expiry clears only stale readiness and offers Restart Worker
+PASS: Expiry does not erase a prior staging outcome or replay staging after restart
+PASS: Expiry does not erase a certificate failure message
+PASS: Expiry does not erase a successful settings-commit result
+PASS: Fresh startup rejection keeps its error instead of retaining the old green readiness banner
+PASS: An unconfirmed or cached expiry alone does not manufacture worker unavailability
+20/20 tests passed

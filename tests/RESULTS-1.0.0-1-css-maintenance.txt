@@ -1,0 +1,14 @@
+test_all_custom_property_references_exist (__main__.CSSMaintenance.test_all_custom_property_references_exist) ... ok
+test_both_files_are_readable_and_documented (__main__.CSSMaintenance.test_both_files_are_readable_and_documented) ... ok
+test_decorative_inline_css_is_removed (__main__.CSSMaintenance.test_decorative_inline_css_is_removed) ... ok
+test_shared_action_row_is_in_layout (__main__.CSSMaintenance.test_shared_action_row_is_in_layout) ... ok
+test_shared_log_surface_has_one_owner (__main__.CSSMaintenance.test_shared_log_surface_has_one_owner) ... ok
+test_shared_status_colours_have_one_owner (__main__.CSSMaintenance.test_shared_status_colours_have_one_owner) ... ok
+test_stylesheet_load_order (__main__.CSSMaintenance.test_stylesheet_load_order) ... ok
+test_theme_has_one_definition_per_variable (__main__.CSSMaintenance.test_theme_has_one_definition_per_variable) ... ok
+test_workflow_hidden_reuses_common_rule (__main__.CSSMaintenance.test_workflow_hidden_reuses_common_rule) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.003s
+
+OK

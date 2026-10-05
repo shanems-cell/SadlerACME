@@ -1,0 +1,13 @@
+[Unit]
+Description=Expire SadlerACME recovery downloads
+[Service]
+Type=oneshot
+User=root
+Group=root
+UMask=0077
+ExecStart=@VERIFIED_WORKER@ expire-transfers
+Slice=sadleracme.slice
+TimeoutStartSec=45min
+TimeoutStopSec=30s
+KillMode=control-group
+NoNewPrivileges=true

@@ -1,0 +1,534 @@
+#!/bin/sh
+# Standalone administrator recovery tool. Does not source or execute the normal
+# SadlerACME worker, and never deletes DSM's installed certificate directories.
+set -eu
+umask 077
+PATH=/usr/syno/bin:/usr/syno/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+BASE='/var/packages/sadleracme'
+PROTECTED='/usr/local/etc/sadleracme'
+REMOVAL='/usr/local/etc/sadleracme-removal'
+UNIT='/usr/local/lib/systemd/system/sadleracme-cleanup.service'
+MODE=check
+CONFIRM=''
+TASKS_CONFIRMED=no
+REMOVE_TASKS=no
+ABORT_WORK=no
+DISCARD_RECOVERY=no
+STORAGE_WORK=''
+STORAGE_COUNT=0
+STORAGE_ALIAS_PINNED=no
+usage() {
+  cat <<'HELP'
+SadlerACME emergency uninstall (DSM-installed certificates are retained)
+  sudo sh sadleracme-emergency-remove --check
+  sudo sh sadleracme-emergency-remove --remove --remove-tasks --confirm 'REMOVE SADLERACME DATA'
+Run --check first. --remove-tasks removes only the exact recognised SadlerACME
+Bootstrap/Setup tasks through DSM EventScheduler. Conflicting tasks are refused.
+If scheduler inspection is unavailable, --tasks-removed explicitly confirms
+that an administrator has manually checked and removed those tasks.
+--stop-active-work explicitly permits interruption of a stuck worker.
+--discard-recovery-data explicitly permits discarding an interrupted certificate
+transaction's recovery files. Verify DSM's active certificate before using it.
+These overrides are separate because they can interrupt certificate deployment.
+This tool removes Cloudflare credentials and private recovery data permanently.
+HELP
+}
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --check) MODE=check;;
+    --remove) MODE=remove;;
+    --confirm) shift; [ "$#" -gt 0 ] || { usage; exit 2; }; CONFIRM=$1;;
+    --tasks-removed) TASKS_CONFIRMED=yes;;
+    --remove-tasks) REMOVE_TASKS=yes;;
+    --stop-active-work) ABORT_WORK=yes;;
+    --discard-recovery-data) DISCARD_RECOVERY=yes;;
+    -h|--help) usage; exit 0;;
+    *) usage; exit 2;;
+  esac
+  shift
+done
+[ "$(id -u)" = 0 ] || { echo 'Run this recovery tool with sudo.' >&2; exit 1; }
+if [ "$MODE" = remove ] && [ "$CONFIRM" != 'REMOVE SADLERACME DATA' ]; then usage; exit 2; fi
+safe_root_dir() {
+  [ -d "$1" ] && [ ! -L "$1" ] && [ "$(stat -c %u "$1")" = 0 ] &&
+    [ -z "$(find "$1" -maxdepth 0 \( -perm -020 -o -perm -002 \) -print)" ]
+}
+# @PACKAGE_STORAGE_HELPERS@
+
+# Records survive an interrupted emergency removal. Do not replace an old
+# identity with a freshly captured identity: that could delete a different
+# installation which appeared at the same path.
+emergency_storage_verify_all() {
+  for es_record in "$STORAGE_WORK"/var.* "$STORAGE_WORK"/etc.*; do
+    [ -e "$es_record" ] || [ -L "$es_record" ] || continue
+    es_kind=${es_record##*/}; es_kind=${es_kind%%.*}
+    package_storage_verify "$es_record" "$es_kind" || return 1
+  done
+  if [ -e "$STORAGE_WORK/etc-alias" ] || [ -L "$STORAGE_WORK/etc-alias" ]; then
+    [ ! -e "$STORAGE_WORK/etc-alias.absent" ] && [ ! -L "$STORAGE_WORK/etc-alias.absent" ] || return 1
+    package_storage_alias_verify "$STORAGE_WORK/etc-alias" || return 1
+    es_alias_target=$(sed -n '4p' "$STORAGE_WORK/etc-alias")
+    # A present alias target must also have its physical identity pinned. An
+    # already dangling alias may be unlinked, but grants no permission to
+    # delete a physical directory that appears later.
+    if [ -e "$es_alias_target" ] || [ -L "$es_alias_target" ]; then
+      es_alias_target_record=no
+      for es_record in "$STORAGE_WORK"/etc.*; do
+        [ -e "$es_record" ] || [ -L "$es_record" ] || continue
+        package_storage_verify "$es_record" etc || return 1
+        if [ "$(sed -n '1p' "$es_record")" = "$es_alias_target" ]; then
+          es_alias_target_record=yes
+        fi
+      done
+      [ "$es_alias_target_record" = yes ] || return 1
+    fi
+  elif [ -e "$STORAGE_WORK/etc-alias.absent" ] || [ -L "$STORAGE_WORK/etc-alias.absent" ]; then
+    package_storage_alias_absence_verify "$STORAGE_WORK/etc-alias.absent" || return 1
+  else
+    # A link created after preflight was never approved for removal.
+    [ ! -L /usr/syno/etc/packages/sadleracme ] || return 1
+  fi
+}
+emergency_storage_alias_import() {
+  [ ! -e "$STORAGE_WORK/etc-alias.absent" ] && [ ! -L "$STORAGE_WORK/etc-alias.absent" ] || return 1
+  package_storage_alias_verify "$1" || return 1
+  if [ -e "$STORAGE_WORK/etc-alias" ] || [ -L "$STORAGE_WORK/etc-alias" ]; then
+    package_storage_alias_verify "$STORAGE_WORK/etc-alias" || return 1
+    cmp -s "$1" "$STORAGE_WORK/etc-alias" || return 1
+  else
+    cp -Pp "$1" "$STORAGE_WORK/etc-alias" || return 1
+    package_storage_alias_verify "$STORAGE_WORK/etc-alias" || return 1
+  fi
+  STORAGE_ALIAS_PINNED=yes
+}
+emergency_storage_alias_absence_import() {
+  [ ! -e "$STORAGE_WORK/etc-alias" ] && [ ! -L "$STORAGE_WORK/etc-alias" ] || return 1
+  package_storage_alias_absence_verify "$1" || return 1
+  if [ -e "$STORAGE_WORK/etc-alias.absent" ] || [ -L "$STORAGE_WORK/etc-alias.absent" ]; then
+    package_storage_alias_absence_verify "$STORAGE_WORK/etc-alias.absent" || return 1
+    cmp -s "$1" "$STORAGE_WORK/etc-alias.absent" || return 1
+  else
+    cp -Pp "$1" "$STORAGE_WORK/etc-alias.absent" || return 1
+    package_storage_alias_absence_verify "$STORAGE_WORK/etc-alias.absent" || return 1
+  fi
+}
+emergency_storage_add() {
+  es_lookup=$1
+  es_kind=$2
+  [ -e "$es_lookup" ] || [ -L "$es_lookup" ] || return 0
+  es_new="$STORAGE_WORK/new-record"
+  package_storage_capture "$es_lookup" "$es_kind" "$es_new" || return 1
+  es_path=$(sed -n '1p' "$es_new")
+  es_alias_needs_record=no
+  if [ "$STORAGE_ALIAS_PINNED" = yes ] && [ -f "$STORAGE_WORK/etc-alias" ] && [ "$es_kind" = etc ] &&
+      [ "$es_path" = "$(sed -n '4p' "$STORAGE_WORK/etc-alias")" ]; then
+    es_alias_needs_record=yes
+  fi
+  for es_record in "$STORAGE_WORK"/var.* "$STORAGE_WORK"/etc.*; do
+    [ -e "$es_record" ] || [ -L "$es_record" ] || continue
+    es_existing_kind=${es_record##*/}; es_existing_kind=${es_existing_kind%%.*}
+    package_storage_verify "$es_record" "$es_existing_kind" || return 1
+    es_existing_path=$(sed -n '1p' "$es_record")
+    if [ "$es_path" = "$es_existing_path" ]; then
+      [ "$es_kind" = "$es_existing_kind" ] || return 1
+      rm -f "$es_new"
+      return 0
+    fi
+  done
+  # A saved dangling alias pins no physical leaf. Do not approve a new target
+  # on retry, or one which appears after the initial alias-target inspection.
+  [ "$es_alias_needs_record" = no ] || return 1
+  STORAGE_COUNT=$((STORAGE_COUNT + 1))
+  while [ -e "$STORAGE_WORK/$es_kind.$STORAGE_COUNT" ] || [ -L "$STORAGE_WORK/$es_kind.$STORAGE_COUNT" ]; do
+    STORAGE_COUNT=$((STORAGE_COUNT + 1))
+  done
+  mv "$es_new" "$STORAGE_WORK/$es_kind.$STORAGE_COUNT"
+}
+emergency_storage_preflight() {
+  STORAGE_WORK=$(mktemp -d /tmp/sadleracme-storage.XXXXXXXX) || return 1
+  chmod 0700 "$STORAGE_WORK" || return 1
+  if [ -e "$REMOVAL/emergency-storage" ] || [ -L "$REMOVAL/emergency-storage" ]; then
+    safe_root_dir "$REMOVAL/emergency-storage" || return 1
+    # Only records created by this tool are accepted. Unknown or symbolic-link
+    # entries need administrator review, not recursive deletion or migration.
+    for es_saved in "$REMOVAL/emergency-storage"/* "$REMOVAL/emergency-storage"/.[!.]* "$REMOVAL/emergency-storage"/..?*; do
+      [ -e "$es_saved" ] || [ -L "$es_saved" ] || continue
+      es_name=${es_saved##*/}
+      if [ "$es_name" = etc-alias ]; then
+        emergency_storage_alias_import "$es_saved" || return 1
+        continue
+      elif [ "$es_name" = etc-alias.absent ]; then
+        emergency_storage_alias_absence_import "$es_saved" || return 1
+        continue
+      fi
+      es_kind=${es_name%%.*}
+      es_number=${es_name#*.}
+      case "$es_kind" in var|etc) ;; *) return 1;; esac
+      case "$es_number" in ''|*[!0-9]*) return 1;; esac
+      package_storage_verify "$es_saved" "$es_kind" || return 1
+      cp -Pp "$es_saved" "$STORAGE_WORK/$es_name" || return 1
+      package_storage_verify "$STORAGE_WORK/$es_name" "$es_kind" || return 1
+    done
+  fi
+  # A normal prepared removal may already have pinned the physical directory.
+  # Honour that identity even if its monitor refused cleanup; emergency removal
+  # must not turn a changed/replaced leaf into a newly approved candidate.
+  for es_kind in var etc; do
+    es_normal="$REMOVAL/package-$es_kind"
+    if [ -e "$es_normal" ] || [ -L "$es_normal" ]; then
+      package_storage_verify "$es_normal" "$es_kind" || return 1
+      es_path=$(sed -n '1p' "$es_normal")
+      es_duplicate=no
+      for es_record in "$STORAGE_WORK"/var.* "$STORAGE_WORK"/etc.*; do
+        [ -e "$es_record" ] || [ -L "$es_record" ] || continue
+        es_existing_kind=${es_record##*/}; es_existing_kind=${es_existing_kind%%.*}
+        package_storage_verify "$es_record" "$es_existing_kind" || return 1
+        if [ "$(sed -n '1p' "$es_record")" = "$es_path" ]; then
+          [ "$es_kind" = "$es_existing_kind" ] || return 1
+          es_duplicate=yes
+        fi
+      done
+      if [ "$es_duplicate" = no ]; then
+        STORAGE_COUNT=$((STORAGE_COUNT + 1))
+        while [ -e "$STORAGE_WORK/$es_kind.$STORAGE_COUNT" ] || [ -L "$STORAGE_WORK/$es_kind.$STORAGE_COUNT" ]; do
+          STORAGE_COUNT=$((STORAGE_COUNT + 1))
+        done
+        cp -Pp "$es_normal" "$STORAGE_WORK/$es_kind.$STORAGE_COUNT" || return 1
+      fi
+    fi
+  done
+  if [ -e "$REMOVAL/package-etc-alias" ] || [ -L "$REMOVAL/package-etc-alias" ]; then
+    emergency_storage_alias_import "$REMOVAL/package-etc-alias" || return 1
+  fi
+  if [ -e "$REMOVAL/package-etc-alias.absent" ] || [ -L "$REMOVAL/package-etc-alias.absent" ]; then
+    emergency_storage_alias_absence_import "$REMOVAL/package-etc-alias.absent" || return 1
+  fi
+  if [ ! -e "$STORAGE_WORK/etc-alias" ] && [ ! -L "$STORAGE_WORK/etc-alias" ] &&
+      [ ! -e "$STORAGE_WORK/etc-alias.absent" ] && [ ! -L "$STORAGE_WORK/etc-alias.absent" ]; then
+    package_storage_alias_capture "$STORAGE_WORK/etc-alias" || return 1
+  fi
+  if [ -e "$STORAGE_WORK/etc-alias" ] || [ -L "$STORAGE_WORK/etc-alias" ]; then
+    package_storage_alias_verify "$STORAGE_WORK/etc-alias" || return 1
+    es_alias_target=$(sed -n '4p' "$STORAGE_WORK/etc-alias")
+    if [ -e "$REMOVAL/package-etc" ] || [ -L "$REMOVAL/package-etc" ]; then
+      [ "$(sed -n '1p' "$REMOVAL/package-etc")" = "$es_alias_target" ] || return 1
+    fi
+    emergency_storage_add "$es_alias_target" etc || return 1
+    STORAGE_ALIAS_PINNED=yes
+  fi
+  for es_kind in var etc; do
+    emergency_storage_add "$BASE/$es_kind" "$es_kind" || return 1
+    es_candidates=$(package_storage_candidates "$es_kind") || return 1
+    while IFS= read -r es_candidate; do
+      [ -n "$es_candidate" ] || continue
+      if [ "$es_kind" = etc ] && [ "$es_candidate" = /usr/syno/etc/packages/sadleracme ] && [ -L "$es_candidate" ]; then
+        package_storage_alias_verify "$STORAGE_WORK/etc-alias" || return 1
+        continue
+      fi
+      emergency_storage_add "$es_candidate" "$es_kind" || return 1
+    done <<CANDIDATES
+$es_candidates
+CANDIDATES
+  done
+  emergency_storage_verify_all
+}
+emergency_storage_lock() {
+  if [ -e "$REMOVAL" ] || [ -L "$REMOVAL" ]; then
+    safe_root_dir "$REMOVAL" || return 1
+  else
+    mkdir "$REMOVAL" || return 1
+    chmod 0755 "$REMOVAL" || return 1
+  fi
+  if [ -e "$REMOVAL/cleanup.lock" ] || [ -L "$REMOVAL/cleanup.lock" ]; then
+    [ -f "$REMOVAL/cleanup.lock" ] && [ ! -L "$REMOVAL/cleanup.lock" ] &&
+      [ "$(stat -c %u "$REMOVAL/cleanup.lock")" = 0 ] || return 1
+  fi
+  exec 8>"$REMOVAL/cleanup.lock"
+  flock -n 8 || { echo 'Another SadlerACME cleanup is in progress; no data deleted.' >&2; return 1; }
+}
+emergency_storage_persist() {
+  emergency_storage_verify_all || return 1
+  if [ -e "$REMOVAL/armed" ] || [ -L "$REMOVAL/armed" ]; then
+    [ -f "$REMOVAL/armed" ] && [ ! -L "$REMOVAL/armed" ] &&
+      [ "$(stat -c %u "$REMOVAL/armed")" = 0 ] &&
+      [ -z "$(find "$REMOVAL/armed" -maxdepth 0 \( -perm -020 -o -perm -002 \) -print)" ] &&
+      [ "$(stat -c %s "$REMOVAL/armed")" -le 80 ] || return 1
+    es_nonce=$(cat "$REMOVAL/armed")
+    case "$es_nonce" in ''|*[!0-9a-f]*) return 1;; esac
+    [ "${#es_nonce}" = 64 ] || return 1
+  else
+    es_nonce=$(openssl rand -hex 32) || return 1
+    case "$es_nonce" in ''|*[!0-9a-f]*) return 1;; esac
+    [ "${#es_nonce}" = 64 ] || return 1
+    es_armed=$(mktemp "$REMOVAL/armed.XXXXXXXX") || return 1
+    printf '%s\n' "$es_nonce" > "$es_armed" || return 1
+    chmod 0600 "$es_armed" || return 1
+    mv -f "$es_armed" "$REMOVAL/armed" || return 1
+  fi
+  # Persist each verified record atomically. A failed package-manager call
+  # leaves all these records and the install guard available for a safe retry.
+  es_stage=$(mktemp -d "$REMOVAL/emergency-storage.XXXXXXXX") || return 1
+  chmod 0700 "$es_stage" || return 1
+  for es_record in "$STORAGE_WORK"/var.* "$STORAGE_WORK"/etc.* "$STORAGE_WORK/etc-alias" "$STORAGE_WORK/etc-alias.absent"; do
+    [ -e "$es_record" ] || [ -L "$es_record" ] || continue
+    cp -Pp "$es_record" "$es_stage/${es_record##*/}" || return 1
+  done
+  if [ -e "$REMOVAL/emergency-storage" ] || [ -L "$REMOVAL/emergency-storage" ]; then
+    safe_root_dir "$REMOVAL/emergency-storage" || return 1
+    # Preserve all original record names and identities. Existing files are
+    # replaced with identical verified records; new candidates receive unused
+    # names, so interruption cannot lose an earlier recorded identity.
+    for es_record in "$es_stage"/var.* "$es_stage"/etc.* "$es_stage/etc-alias" "$es_stage/etc-alias.absent"; do
+      [ -e "$es_record" ] || [ -L "$es_record" ] || continue
+      mv -f "$es_record" "$REMOVAL/emergency-storage/${es_record##*/}" || return 1
+    done
+    rmdir "$es_stage" || return 1
+  else
+    mv "$es_stage" "$REMOVAL/emergency-storage" || return 1
+  fi
+}
+for parent in /usr /usr/local /usr/local/etc /usr/local/lib /usr/local/lib/systemd /usr/local/lib/systemd/system; do
+  safe_root_dir "$parent" || { echo "Unsafe root directory: $parent" >&2; exit 1; }
+done
+for item in "$PROTECTED" "$REMOVAL"; do
+  if [ -e "$item" ] || [ -L "$item" ]; then safe_root_dir "$item" || { echo "Unsafe application path: $item" >&2; exit 1; }; fi
+done
+[ ! -L "$UNIT" ] || { echo 'Cleanup unit is an unexpected symbolic link.' >&2; exit 1; }
+trap '[ -z "$STORAGE_WORK" ] || rm -rf -- "$STORAGE_WORK"' EXIT
+if [ "$MODE" = remove ]; then
+  emergency_storage_preflight || { echo 'Package-data paths or saved identities could not be verified safely; no tasks or data were deleted.' >&2; exit 1; }
+fi
+scheduler_unknown=no
+scheduler_rows=''
+db='/usr/syno/etc/esynoscheduler/esynoscheduler.db'
+if command -v sqlite3 >/dev/null 2>&1 && [ -r "$db" ]; then
+  scheduler_rows=$(sqlite3 -readonly -separator '|' "$db" "SELECT task_name,owner,operation,operation_type FROM task WHERE task_name IN ('SadlerACME Bootstrap','SadlerACME Setup') OR operation LIKE '%pkg-sadleracme-%' OR operation LIKE '%sadleracme-root%';" 2>/dev/null) || scheduler_unknown=yes
+else scheduler_unknown=yes; fi
+if [ -n "$scheduler_rows" ]; then
+  # Validate the entire inventory before deleting even the first task. A name
+  # match alone must not delete somebody's different or duplicated root task.
+  task_names=''
+  task_count_boot=0
+  task_count_setup=0
+  task_conflict=no
+  while IFS='|' read -r task_name task_owner task_command task_type; do
+    case "$task_name" in
+      'SadlerACME Bootstrap')
+        task_count_boot=$((task_count_boot+1))
+        [ "$task_owner:$task_type" = '0:script' ] && [ "$task_command" = '/bin/systemctl start pkg-sadleracme-bootstrap.service' ] || task_conflict=yes;;
+      'SadlerACME Setup')
+        task_count_setup=$((task_count_setup+1))
+        [ "$task_owner:$task_type" = '0:script' ] && [ "$task_command" = '/bin/systemctl start pkg-sadleracme-setup.service' ] || task_conflict=yes;;
+      *) task_conflict=yes;;
+    esac
+    printf 'Scheduler task: %s\n' "$task_name"
+    task_names="${task_names}${task_name}
+"
+  done <<TASKS
+$scheduler_rows
+TASKS
+  [ "$task_count_boot" -le 1 ] && [ "$task_count_setup" -le 1 ] || task_conflict=yes
+  if [ "$MODE" = remove ]; then
+    [ "$REMOVE_TASKS" = yes ] || { echo 'Use --remove-tasks, or remove these tasks in DSM Task Scheduler first.' >&2; exit 1; }
+    [ "$task_conflict" = no ] || { echo 'Conflicting, duplicate or unrecognised task commands require manual review; no tasks were deleted.' >&2; exit 1; }
+    [ -x /usr/syno/bin/synowebapi ] && command -v jq >/dev/null 2>&1 || { echo 'DSM EventScheduler API helper or jq unavailable; no data deleted.' >&2; exit 1; }
+    while IFS= read -r task_name; do
+      [ -n "$task_name" ] || continue
+      quoted_name=$(printf '%s' "$task_name" | jq -Rs .) || exit 1
+      # Same EventScheduler delete API as the DSM browser bridge. Unsupported
+      # CLI/API behavior fails closed and is never replaced by database writes.
+      reply=$(/usr/syno/bin/synowebapi --exec-fastwebapi api=SYNO.Core.EventScheduler method=delete version=1 "task_name=$quoted_name" 2>/dev/null) || { echo 'DSM rejected scheduler task deletion; no application data deleted.' >&2; exit 1; }
+      printf '%s' "$reply" | jq -e 'type=="object" and .success==true' >/dev/null || { echo 'DSM did not confirm scheduler task deletion; no application data deleted.' >&2; exit 1; }
+    done <<TASKS
+$task_names
+TASKS
+    scheduler_rows=$(sqlite3 -readonly -separator '|' "$db" "SELECT task_name,owner,operation,operation_type FROM task WHERE task_name IN ('SadlerACME Bootstrap','SadlerACME Setup') OR operation LIKE '%pkg-sadleracme-%' OR operation LIKE '%sadleracme-root%';" 2>/dev/null) || { echo 'Cannot verify scheduler cleanup; application data remains.' >&2; exit 1; }
+    [ -z "$scheduler_rows" ] || { echo 'SadlerACME scheduler tasks remain after the API call; application data remains.' >&2; exit 1; }
+  elif [ "$task_conflict" = yes ]; then
+    echo 'Conflicting or duplicate scheduler tasks require manual review before removal.'
+  fi
+fi
+if [ "$scheduler_unknown" = yes ]; then
+  echo 'Scheduler inspection unavailable: manually remove SadlerACME tasks in DSM Task Scheduler.'
+  if [ "$MODE" = remove ] && [ "$TASKS_CONFIRMED" != yes ]; then
+    echo 'After checking tasks, repeat with --tasks-removed.' >&2; exit 1
+  fi
+fi
+active=no
+unknown=no
+for service in pkg-sadleracme-worker.service pkg-sadleracme-renew.service pkg-sadleracme-bootstrap.service pkg-sadleracme-setup.service pkg-sadleracme-setup-expire.service pkg-sadleracme-transfer-expire.service; do
+  query_rc=0
+  report=$(systemctl show "$service" -p LoadState -p ActiveState 2>/dev/null) || query_rc=$?
+  load=$(printf '%s\n' "$report" | sed -n 's/^LoadState=//p')
+  state=$(printf '%s\n' "$report" | sed -n 's/^ActiveState=//p')
+  case "$query_rc:$load:$state" in
+    0:loaded:inactive|0:loaded:failed|0:masked:inactive|0:masked:failed|0:not-found:inactive|1:not-found:inactive) ;;
+    0:loaded:active|0:loaded:activating|0:loaded:deactivating|0:loaded:reloading) active=yes; printf 'Active operation: %s (%s)\n' "$service" "$state";;
+    *) unknown=yes; printf 'Unable to verify service: %s\n' "$service";;
+  esac
+done
+pending=no
+for marker in transaction.pending reload.pending deployment-history.pending; do
+  if [ -s "$PROTECTED/private/$marker" ]; then pending=yes; printf 'Unfinished certificate recovery: %s\n' "$marker"; fi
+done
+if [ "$MODE" = check ]; then
+  printf 'Package present: '; if [ -e "$BASE" ] || [ -L "$BASE" ]; then echo yes; else echo no; fi
+  printf 'Protected SadlerACME data present: '; if [ -e "$PROTECTED" ]; then echo yes; else echo no; fi
+  for es_kind in var etc; do
+    printf 'Registered package %s path: ' "$es_kind"
+    if [ -e "$BASE/$es_kind" ] || [ -L "$BASE/$es_kind" ]; then
+      es_registered=$(readlink -f "$BASE/$es_kind") || es_registered=''
+      if [ -n "$es_registered" ]; then
+        printf '%s\n' "$es_registered"
+        if ! package_storage_validate "$es_registered" "$es_kind"; then
+          echo '  Unrecognised or unsafe registered storage: automatic deletion will be refused.'
+        fi
+      else printf '(unresolved)\n'; fi
+    else printf '(not registered)\n'; fi
+    es_candidates=$(package_storage_candidates "$es_kind") || exit 1
+    while IFS= read -r es_candidate; do
+      [ -n "$es_candidate" ] || continue
+      printf 'Remaining package %s path: %s\n' "$es_kind" "$es_candidate"
+      # lstat only: do not traverse candidate links or read any file contents.
+      stat -c '%A (%a) %U:%G %n' "$es_candidate" || true
+      if [ "$es_kind" = etc ] && [ "$es_candidate" = /usr/syno/etc/packages/sadleracme ] && [ -L "$es_candidate" ]; then
+        if es_alias_target=$(package_storage_alias_target); then
+          printf '  Recognised DSM configuration alias -> %s\n' "$es_alias_target"
+        else
+          echo '  Unsafe configuration alias: automatic deletion will be refused.'
+        fi
+        continue
+      fi
+      if ! package_storage_validate "$es_candidate" "$es_kind"; then
+        echo '  Unsafe path, parent permissions or mounted storage: automatic deletion will be refused.'
+      fi
+    done <<CANDIDATES
+$es_candidates
+CANDIDATES
+  done
+  if [ -e "$REMOVAL/emergency-storage" ] || [ -L "$REMOVAL/emergency-storage" ]; then
+    echo 'An interrupted emergency cleanup has saved storage records; --remove will verify their original identities before retrying.'
+  fi
+  echo 'Read-only check complete. No tasks, services, certificates or data were changed.'
+  exit 0
+fi
+[ "$unknown" = no ] || { echo 'Systemd cannot verify the worker state; repair service control before removal.' >&2; exit 1; }
+[ "$active" = no ] || [ "$ABORT_WORK" = yes ] || { echo 'Wait for the operation to finish, or explicitly use --stop-active-work for a stuck worker.' >&2; exit 1; }
+[ "$pending" = no ] || [ "$DISCARD_RECOVERY" = yes ] || { echo 'Recover the interrupted certificate operation first, or explicitly use --discard-recovery-data after checking DSM certificates.' >&2; exit 1; }
+echo 'Stopping SadlerACME services. DSM-installed certificates will not be deleted.'
+# Remove our temporary boot-enabled expiry timer before DSM unregisters its
+# unit; a second cleanup run after package removal must also work without it.
+expiry_report=$(systemctl show pkg-sadleracme-transfer-expire.timer -p LoadState 2>/dev/null) || true
+case "$expiry_report" in
+  *LoadState=not-found*) ;;
+  *LoadState=loaded*|*LoadState=masked*) systemctl disable pkg-sadleracme-transfer-expire.timer || exit 1;;
+  *) echo 'Cannot verify recovery-download timer registration; no data deleted.' >&2; exit 1;;
+esac
+# Stop triggers before workers, preventing new work while cleanup proceeds.
+for unit in pkg-sadleracme-queue.path pkg-sadleracme-renew.timer pkg-sadleracme-setup-expire.timer pkg-sadleracme-transfer-expire.timer pkg-sadleracme-worker.service pkg-sadleracme-renew.service pkg-sadleracme-bootstrap.service pkg-sadleracme-setup.service pkg-sadleracme-setup-expire.service pkg-sadleracme-transfer-expire.service sadleracme-cleanup.service; do
+  report=$(systemctl show "$unit" -p LoadState -p ActiveState 2>/dev/null) || true
+  case "$report" in *LoadState=not-found*) continue;; esac
+  systemctl stop "$unit" || { echo "Could not stop $unit; no data deleted." >&2; exit 1; }
+  report=$(systemctl show "$unit" -p ActiveState 2>/dev/null) || exit 1
+  state=$(printf '%s\n' "$report" | sed -n 's/^ActiveState=//p')
+  case "$state" in inactive|failed) ;; *) echo "Service $unit did not stop; no data deleted." >&2; exit 1;; esac
+done
+# Share the normal cleanup monitor's lock order: cleanup first, worker second.
+emergency_storage_lock || { echo 'Cannot lock the cleanup state; no application data deleted.' >&2; exit 1; }
+# Verify no in-flight worker still owns application state before hooks change.
+if [ -d "$PROTECTED/private" ]; then
+  safe_root_dir "$PROTECTED/private" || exit 1
+  exec 9>"$PROTECTED/private/worker.lock"
+  flock -n 9 || { echo 'A SadlerACME worker still holds the lock; no data deleted.' >&2; exit 1; }
+fi
+# A worker interrupted by the explicit override may just have created recovery
+# markers; recheck after stopping, never silently discard those markers.
+if [ "$DISCARD_RECOVERY" != yes ]; then
+  for marker in transaction.pending reload.pending deployment-history.pending; do
+    [ ! -s "$PROTECTED/private/$marker" ] || { echo 'Stopping the worker left certificate recovery data. Check DSM certificates before --discard-recovery-data.' >&2; exit 1; }
+  done
+fi
+emergency_storage_persist || { echo 'Could not preserve verified package-data records; no application data deleted.' >&2; exit 1; }
+HOOK_BACKUP=''
+restore_hooks() {
+  [ -n "$HOOK_BACKUP" ] || return 0
+  if [ -d "$BASE/scripts" ]; then
+    for hook in start-stop-status preuninst postuninst; do
+      if [ -f "$HOOK_BACKUP/$hook" ]; then
+        cp -p "$HOOK_BACKUP/$hook" "$HOOK_BACKUP/restore-$hook" || return 1
+        mv -Tf "$HOOK_BACKUP/restore-$hook" "$BASE/scripts/$hook" || return 1
+      fi
+    done
+  fi
+  rm -rf "$HOOK_BACKUP"
+  HOOK_BACKUP=''
+}
+trap 'restore_hooks; [ -z "$STORAGE_WORK" ] || rm -rf -- "$STORAGE_WORK"' EXIT
+trap 'exit 1' HUP INT TERM
+if [ -e "$BASE" ] || [ -L "$BASE" ]; then
+  [ -x /usr/syno/bin/synopkg ] || { echo 'DSM package manager is missing; no data deleted.' >&2; exit 1; }
+  [ -d "$BASE/scripts" ] || { echo 'Package scripts directory is unavailable; repair DSM package registration first.' >&2; exit 1; }
+  HOOK_BACKUP=$(mktemp -d /tmp/sadleracme-emergency.XXXXXXXX) || exit 1
+  chmod 0700 "$HOOK_BACKUP"
+  # Override only this package's busy/readiness hooks after verified quiescence.
+  for hook in start-stop-status preuninst postuninst; do
+    [ -f "$BASE/scripts/$hook" ] && [ ! -L "$BASE/scripts/$hook" ] || { echo "Unexpected package hook: $hook" >&2; exit 1; }
+    cp -Pp "$BASE/scripts/$hook" "$HOOK_BACKUP/$hook"
+    [ -f "$HOOK_BACKUP/$hook" ] && [ ! -L "$HOOK_BACKUP/$hook" ] || { echo 'Package hook changed unexpectedly; no data deleted.' >&2; exit 1; }
+    printf '#!/bin/sh\nexit 0\n' > "$HOOK_BACKUP/stub-$hook"
+    chmod 0755 "$HOOK_BACKUP/stub-$hook"
+    mv -Tf "$HOOK_BACKUP/stub-$hook" "$BASE/scripts/$hook"
+  done
+  if ! /usr/syno/bin/synopkg uninstall sadleracme; then
+    echo 'DSM package removal failed. Original hooks are restored; application data remains.' >&2
+    exit 1
+  fi
+  if [ -e "$BASE" ] || [ -L "$BASE" ]; then
+    echo 'DSM still reports a package directory. Application data remains; do not edit the DSM package database.' >&2
+    exit 1
+  fi
+fi
+# Reverify every recorded physical directory before removing the first one.
+# A path replaced during synopkg removal must never inherit an old approval.
+emergency_storage_verify_all || { echo 'Package-data identity or filesystem changed during removal. Saved records and remaining data were retained.' >&2; exit 1; }
+# Never manually remove /var/packages or edit DSM registration databases.
+# Refuse symlink replacements observed after the package manager ran.
+for item in "$PROTECTED" "$REMOVAL"; do
+  if [ -e "$item" ] || [ -L "$item" ]; then safe_root_dir "$item" || exit 1; fi
+done
+if [ -f "$UNIT" ]; then systemctl disable sadleracme-cleanup.service || exit 1; fi
+mounts=$(awk -v p="$PROTECTED" -v r="$REMOVAL" '$5==p || index($5,p "/")==1 || $5==r || index($5,r "/")==1 {print $5}' /proc/self/mountinfo) || exit 1
+[ -z "$mounts" ] || { echo 'A filesystem is mounted under SadlerACME data. Unmount it before cleanup; data remains.' >&2; exit 1; }
+for es_record in "$STORAGE_WORK"/var.* "$STORAGE_WORK"/etc.*; do
+  [ -e "$es_record" ] || [ -L "$es_record" ] || continue
+  es_kind=${es_record##*/}; es_kind=${es_kind%%.*}
+  package_storage_remove "$es_record" "$es_kind" || { echo 'Some package data could not be removed. Saved cleanup records were retained for a retry.' >&2; exit 1; }
+done
+if [ -e "$STORAGE_WORK/etc-alias" ] || [ -L "$STORAGE_WORK/etc-alias" ]; then
+  package_storage_alias_remove "$STORAGE_WORK/etc-alias" || { echo 'The DSM configuration alias could not be removed safely. Saved cleanup records were retained for a retry.' >&2; exit 1; }
+elif [ -e "$STORAGE_WORK/etc-alias.absent" ] || [ -L "$STORAGE_WORK/etc-alias.absent" ]; then
+  package_storage_alias_absence_verify "$STORAGE_WORK/etc-alias.absent" || { echo 'An unexpected DSM configuration alias appeared during cleanup. Saved cleanup records were retained for review.' >&2; exit 1; }
+else
+  [ ! -L /usr/syno/etc/packages/sadleracme ] || { echo 'An unrecorded DSM configuration alias appeared during cleanup. Saved cleanup records were retained for review.' >&2; exit 1; }
+fi
+rm -f "$UNIT"
+# DSM normally unregisters these. Remove only exact residual app-owned files
+# after package absence has been verified; never glob or edit package databases.
+unit_leftovers=no
+for unit in pkg-sadleracme-worker.service pkg-sadleracme-renew.service pkg-sadleracme-renew.timer pkg-sadleracme-bootstrap.service pkg-sadleracme-queue.path pkg-sadleracme-setup.service pkg-sadleracme-setup-expire.service pkg-sadleracme-setup-expire.timer pkg-sadleracme-transfer-expire.service pkg-sadleracme-transfer-expire.timer; do
+  unit_file="/usr/local/lib/systemd/system/$unit"
+  if [ -e "$unit_file" ] || [ -L "$unit_file" ]; then
+    if [ -f "$unit_file" ] && [ ! -L "$unit_file" ] && [ "$(stat -c %u "$unit_file")" = 0 ]; then
+      rm -f "$unit_file" || exit 1
+    else
+      printf 'Unknown unit path retained for administrator review: %s\n' "$unit_file" >&2
+      unit_leftovers=yes
+    fi
+  fi
+done
+rm -rf -- "$PROTECTED" "$REMOVAL"
+systemctl daemon-reload || exit 1
+[ "$unit_leftovers" = no ] || { echo 'Package and application data removed; unexpected unit paths still need manual review.' >&2; exit 1; }
+[ ! -e "$PROTECTED" ] && [ ! -L "$PROTECTED" ] && [ ! -e "$REMOVAL" ] && [ ! -L "$REMOVAL" ] || { echo 'Some SadlerACME data remains. Inspect permissions and filesystem errors.' >&2; exit 1; }
+echo 'SadlerACME package, package storage and protected application data removed. DSM-installed certificates were retained.'

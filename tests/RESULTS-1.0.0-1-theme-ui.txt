@@ -1,0 +1,14 @@
+PASS Dark is default without saved preference
+PASS Saved light applied immediately
+PASS Invalid saved values select dark
+PASS Click updates palette, accessible target label and storage
+PASS Second click restores dark
+PASS Blocked storage still allows in-page switching
+PASS Blocked preference read falls back safely
+PASS Failed preference write does not undo visual change
+PASS Other page preference event applies without echo write
+PASS Unrelated storage event ignored
+PASS Cleared storage restores default dark
+PASS Missing button does not prevent palette initialization
+PASS Theme does not request network or use certificate settings
+13/13 theme tests passed.

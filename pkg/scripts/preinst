@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+PATH=/usr/syno/bin:/usr/syno/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+fail() { echo "$1" >&2; [ -z "${SYNOPKG_TEMP_LOGFILE:-}" ] || echo "$1" > "$SYNOPKG_TEMP_LOGFILE"; exit 1; }
+# Wait for a previous confirmed removal to finish before a fresh installation
+# can race the independent cleanup monitor. Upgrades retain the current state.
+if [ "${SYNOPKG_PKG_STATUS:-}" != UPGRADE ] && [ -e /usr/local/etc/sadleracme-removal/armed ]; then
+  fail 'Previous SadlerACME removal cleanup has not finished. Wait and retry installation; if it remains blocked, use the Emergency SSH cleanup instructions.'
+fi
+for cmd in jq openssl curl flock sha256sum mktemp stat find dd cmp awk sed sort paste od head tail systemctl; do
+  command -v "$cmd" >/dev/null 2>&1 || fail "SadlerACME requires $cmd on this DSM installation"
+done
+# Lifecycle scripts run as the package account. Check only helpers it uses;
+# root bootstrap checks synowebapi/synow3tool with root's permissions.
+for cmd in /usr/syno/synoman/webman/modules/authenticate.cgi /bin/systemctl; do
+  [ -x "$cmd" ] || fail "Required DSM component is unavailable: $cmd"
+done
+openssl verify -help 2>&1 | grep -q partial_chain || fail 'This OpenSSL lacks partial-chain certificate verification'
+exit 0

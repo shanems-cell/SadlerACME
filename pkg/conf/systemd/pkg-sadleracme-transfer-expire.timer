@@ -1,0 +1,11 @@
+[Unit]
+Description=Clean abandoned SadlerACME recovery downloads
+[Timer]
+OnActiveSec=1min
+OnBootSec=2min
+OnUnitActiveSec=1min
+AccuracySec=10s
+Unit=pkg-sadleracme-transfer-expire.service
+
+[Install]
+WantedBy=timers.target

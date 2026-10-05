@@ -1,0 +1,5 @@
+Initial documentation check during assembly:
+python tools/check_release_docs.py
+AssertionError: CHANGELOG.md: link VALIDATION.md
+
+The validation document had not yet been written. No runtime code or assertions were changed. Final validation followed completion of all referenced public documents; this attempt is not counted as a pass.

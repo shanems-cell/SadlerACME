@@ -1,0 +1,19 @@
+test_changed_dsm_failure_preserves_saved_settings_and_pauses_renewal (__main__.WizardWorker.test_changed_dsm_failure_preserves_saved_settings_and_pauses_renewal) ... ok
+test_completed_settings_commit_recovers_after_marker_interruption (__main__.WizardWorker.test_completed_settings_commit_recovers_after_marker_interruption) ... ok
+test_configuration_lock_blocks_direct_settings_save (__main__.WizardWorker.test_configuration_lock_blocks_direct_settings_save) ... ok
+test_crash_after_new_live_before_signature_retains_candidate (__main__.WizardWorker.test_crash_after_new_live_before_signature_retains_candidate) ... ok
+test_crash_before_live_publication_retains_valid_issued_profile (__main__.WizardWorker.test_crash_before_live_publication_retains_valid_issued_profile) ... ok
+test_failed_settings_commit_leaves_explicit_pending_then_reuses_certificate (__main__.WizardWorker.test_failed_settings_commit_leaves_explicit_pending_then_reuses_certificate) ... ok
+test_job_receipt_rejects_paths_and_supports_interrupted (__main__.WizardWorker.test_job_receipt_rejects_paths_and_supports_interrupted) ... ok
+test_next_worker_recovers_interrupted_apply_before_refresh (__main__.WizardWorker.test_next_worker_recovers_interrupted_apply_before_refresh) ... ok
+test_pending_apply_blocks_scheduled_and_manual_renewal (__main__.WizardWorker.test_pending_apply_blocks_scheduled_and_manual_renewal) ... ok
+test_pending_wizard_blocks_restore_before_any_mutation (__main__.WizardWorker.test_pending_wizard_blocks_restore_before_any_mutation) ... ok
+test_staging_uses_draft_without_saved_settings_or_production_changes (__main__.WizardWorker.test_staging_uses_draft_without_saved_settings_or_production_changes) ... ok
+test_stale_saved_settings_reference_fails_before_issuance (__main__.WizardWorker.test_stale_saved_settings_reference_fails_before_issuance) ... ok
+test_successful_apply_commits_only_after_real_dsm_deployment (__main__.WizardWorker.test_successful_apply_commits_only_after_real_dsm_deployment) ... ok
+test_unchanged_dsm_failure_restores_active_state_and_retry_reuses_issue (__main__.WizardWorker.test_unchanged_dsm_failure_restores_active_state_and_retry_reuses_issue) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 13.259s
+
+OK

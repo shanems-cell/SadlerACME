@@ -1,0 +1,104 @@
+{
+  "note": "Native screenshots are illustrative and may display an earlier version. Their pixels and original annotations are retained. They do not represent newly performed native tests of the current release. Help & About uses the replacement image without the signed-in email tooltip.",
+  "images": [
+    {
+      "file": "01-manual-install.png",
+      "treatment": "Original native screenshot; visible version retained as captured",
+      "size": [
+        1058,
+        578
+      ],
+      "sha256": "9e003cc18756a88803ebba7f6a540033284e3b77005fd74855c5b81eac95cb52"
+    },
+    {
+      "file": "02-third-party-warning.png",
+      "treatment": "Original native screenshot; visible version retained as captured",
+      "size": [
+        700,
+        500
+      ],
+      "sha256": "8c874e45ed0861ed12c4e61e8c33a02efb8312c16e13aef7248abc3e099d1a29"
+    },
+    {
+      "file": "03-confirm-install.png",
+      "treatment": "Original native screenshot; visible version retained as captured",
+      "size": [
+        699,
+        499
+      ],
+      "sha256": "6b1bfe4578393b9f8687a612063478e529083967d7d5a33fbb9139a92a1aa803"
+    },
+    {
+      "file": "04-installed-package.png",
+      "treatment": "Original native screenshot; visible version retained as captured",
+      "size": [
+        1062,
+        581
+      ],
+      "sha256": "55ad4c1aa6089352ee270c19aedec797c256743be1a81bf7cee56bf82924724c"
+    },
+    {
+      "file": "05-dashboard.png",
+      "treatment": "Original native screenshot; visible version retained as captured",
+      "size": [
+        1323,
+        823
+      ],
+      "sha256": "db2b249543ba234b6802b6e186824a85ea106dc77a12a50f3c6bb778dc0b8820"
+    },
+    {
+      "file": "06-certificate-settings.png",
+      "treatment": "Original native screenshot; visible version retained as captured",
+      "size": [
+        1322,
+        822
+      ],
+      "sha256": "c7574b991cc28b80170b820c7a7bd170d7842426398f06f6f44a3c4798b5b9ca"
+    },
+    {
+      "file": "07-automation.png",
+      "treatment": "Original native screenshot; visible version retained as captured",
+      "size": [
+        1321,
+        823
+      ],
+      "sha256": "ec848a406105917c96d8db6b9f5285538ab6ed5a12c426ffbb2d1cf02c0514e4"
+    },
+    {
+      "file": "08-backup-restore.png",
+      "treatment": "Original native screenshot; visible version retained as captured",
+      "size": [
+        1322,
+        823
+      ],
+      "sha256": "e14d0c8430674e87e9d8b1e4fc6f12318b5c0ae48ea7b222ff8d42349012549d"
+    },
+    {
+      "file": "09-uninstall.png",
+      "treatment": "Original native screenshot; visible version retained as captured",
+      "size": [
+        1322,
+        822
+      ],
+      "sha256": "1f600bd656578a5cb980b06ef6e756b50ef22ea2fb27396610f83b1d39e7b8b2"
+    },
+    {
+      "file": "10-logs.png",
+      "treatment": "Original native screenshot; visible version retained as captured",
+      "size": [
+        1322,
+        823
+      ],
+      "sha256": "49a1df7262d4e56da6fbfd808c366bd20c98f12a33478c53c246880c2266026c"
+    },
+    {
+      "file": "11-help-about.png",
+      "treatment": "Original native screenshot; visible version retained as captured",
+      "size": [
+        1322,
+        823
+      ],
+      "sha256": "71cd87e8d93ff94f453678df3d41745ce8d063f0e2f55afbcf1cfe1267d97ee5"
+    }
+  ]
+}

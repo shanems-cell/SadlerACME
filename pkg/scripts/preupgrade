@@ -1,0 +1,27 @@
+#!/bin/sh
+set -u
+PATH=/usr/syno/bin:/usr/syno/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+SYNOPKG_PKG_STATUS=UPGRADE /bin/sh "$(dirname "$0")/preinst" || exit 1
+fail() {
+  echo "$1" >&2
+  [ -z "${SYNOPKG_TEMP_LOGFILE:-}" ] || echo "$1" > "$SYNOPKG_TEMP_LOGFILE"
+  exit 1
+}
+# Also protects upgrades from 0.2.3-17, whose Stop did not wait for jobs.
+for unit in pkg-sadleracme-worker.service pkg-sadleracme-renew.service pkg-sadleracme-bootstrap.service pkg-sadleracme-setup.service pkg-sadleracme-setup-expire.service pkg-sadleracme-transfer-expire.service; do
+  query_rc=0
+  report=$(systemctl show "$unit" -p LoadState -p ActiveState 2>/dev/null) || query_rc=$?
+  load=$(printf '%s\n' "$report" | sed -n 's/^LoadState=//p')
+  state=$(printf '%s\n' "$report" | sed -n 's/^ActiveState=//p')
+  case "$state" in active|activating|deactivating|reloading)
+    fail 'SadlerACME is busy. Wait for its certificate operation to finish, then retry the upgrade.';;
+  esac
+  # Missing units are normal before initial registration. An arbitrary query
+  # failure is not evidence that the privileged worker has finished.
+  case "$query_rc:$load:$state" in
+    0:loaded:inactive|0:loaded:failed|0:masked:inactive|0:masked:failed|0:not-found:inactive|1:not-found:inactive) ;;
+    *) fail "Cannot safely upgrade SadlerACME: service status is unavailable for $unit. Retry after DSM service status is available.";;
+  esac
+done
+exit 0

@@ -1,0 +1,68 @@
+#!/bin/sh
+set -u
+PATH=/usr/syno/bin:/usr/syno/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+VAR="${SYNOPKG_PKGVAR:-/var/packages/sadleracme/var}"
+MARKER="$VAR/package.running"
+message() { echo "$1" >&2; [ -z "${SYNOPKG_TEMP_LOGFILE:-}" ] || echo "$1" > "$SYNOPKG_TEMP_LOGFILE"; }
+busy() {
+  for unit in pkg-sadleracme-worker.service pkg-sadleracme-renew.service pkg-sadleracme-bootstrap.service pkg-sadleracme-setup.service pkg-sadleracme-setup-expire.service pkg-sadleracme-transfer-expire.service; do
+    query_rc=0
+    report=$(systemctl show "$unit" -p LoadState -p ActiveState 2>/dev/null) || query_rc=$?
+    load=$(printf '%s\n' "$report" | sed -n 's/^LoadState=//p')
+    state=$(printf '%s\n' "$report" | sed -n 's/^ActiveState=//p')
+    case "$state" in active|activating|deactivating|reloading) return 0;; esac
+    case "$query_rc:$load:$state" in
+      0:loaded:inactive|0:loaded:failed|0:masked:inactive|0:masked:failed|0:not-found:inactive|1:not-found:inactive) ;;
+      *) unknown_unit="$unit"; return 2;;
+    esac
+  done
+  return 1
+}
+restore_marker() {
+  [ -n "$marker_backup" ] || return 0
+  mv -f "$marker_backup" "$MARKER" || return 1
+  marker_backup=""
+}
+case "${1:-}" in
+  start)
+    mkdir -p "$VAR" || exit 1
+    date '+%Y-%m-%d %H:%M:%S' > "$MARKER" || exit 1
+    chmod 0644 "$MARKER"
+    ;;
+  stop)
+    marker_backup=""
+    if [ -f "$MARKER" ]; then
+      marker_backup=$(mktemp "$VAR/package.running.stop.XXXXXX") || exit 1
+      cp -p "$MARKER" "$marker_backup" || { rm -f "$marker_backup"; exit 1; }
+    fi
+    # A rejected/interrupted stop restores the exact original marker. A stop
+    # requested while already stopped must not invent a running marker.
+    trap 'restore_marker' EXIT
+    trap 'exit 1' HUP INT TERM
+    rm -f "$MARKER" || exit 1
+    waited=0
+    while :; do
+      busy
+      busy_rc=$?
+      case "$busy_rc" in
+        1) break;;
+        2)
+          message "Cannot safely stop SadlerACME: service status is unavailable for $unknown_unit. Retry after DSM service status is available."
+          exit 1;;
+      esac
+      if [ "$waited" -ge 90 ]; then
+        message 'SadlerACME is completing a certificate operation. Stop or upgrade again after it finishes.'
+        exit 1
+      fi
+      sleep 1 || exit 1
+      waited=$((waited + 1))
+    done
+    [ -z "$marker_backup" ] || rm -f "$marker_backup" || exit 1
+    marker_backup=""
+    trap - EXIT HUP INT TERM
+    ;;
+  status) [ -f "$MARKER" ] && exit 0; exit 3;;
+  prestart|prestop) exit 0;;
+  *) exit 1;;
+esac

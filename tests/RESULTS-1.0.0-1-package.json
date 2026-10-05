@@ -1,0 +1,271 @@
+{
+  "version": "1.0.0-1",
+  "baseline_sha256": "26e6cc18e79279d9b000333dddac49f6999d2104c602d685ca2e90c54c6cbd50",
+  "spk_sha256": "4220114fe2ed523ac7cd222abdc2ecdd0822fb045fb66878f2c37c3232f34d12",
+  "passed": true,
+  "scope": "Exact byte comparison against accepted implementation; no new native run",
+  "changed_payload_files": [
+    "ui/QUICKSTART.html",
+    "ui/RECOVERY.html",
+    "ui/WORKFLOW.html",
+    "ui/index.cgi"
+  ],
+  "worker_sha256": "3c1fb6d1edbcd1cfec4701684e398255bea3c2d753d9f8096fa2e0f1a1c5c927",
+  "helper_sha256": "fff8b068aaf5d9b8242b5d20c93ab7a7bfc53ec3e7063634ac649e134c3dc4b5",
+  "unchanged_payload_files": [
+    "bin/sadleracme-emergency-remove",
+    "bin/sadleracme-root",
+    "share/acme.sh-3.1.5/LICENSE.md",
+    "share/acme.sh-3.1.5/acme.sh",
+    "share/acme.sh-3.1.5/dnsapi/dns_cf.sh",
+    "share/sadleracme/NOTICE.txt",
+    "ui/LICENSE.txt",
+    "ui/SadlerACME.js",
+    "ui/config",
+    "ui/images/sadleracme_16.png",
+    "ui/images/sadleracme_24.png",
+    "ui/images/sadleracme_256.png",
+    "ui/images/sadleracme_32.png",
+    "ui/images/sadleracme_48.png",
+    "ui/images/sadleracme_64.png",
+    "ui/images/sadleracme_72.png",
+    "ui/layout.css",
+    "ui/nav-icons.svg",
+    "ui/sadleracme-emergency-remove.txt",
+    "ui/theme.js",
+    "ui/workflow.css",
+    "ui/workflow.js"
+  ],
+  "unchanged_systemd_units": [
+    "conf/systemd/pkg-sadleracme-queue.path",
+    "conf/systemd/pkg-sadleracme-transfer-expire.timer",
+    "conf/systemd/pkg-sadleracme-setup-expire.service",
+    "conf/systemd/pkg-sadleracme-renew.service",
+    "conf/systemd/pkg-sadleracme-setup.service",
+    "conf/systemd/pkg-sadleracme-setup-expire.timer",
+    "conf/systemd/pkg-sadleracme-renew.timer",
+    "conf/systemd/pkg-sadleracme-worker.service",
+    "conf/systemd/pkg-sadleracme-transfer-expire.service",
+    "conf/systemd/pkg-sadleracme-bootstrap.service"
+  ],
+  "unchanged_outer_files": [
+    "PACKAGE_ICON.PNG",
+    "PACKAGE_ICON_256.PNG",
+    "conf/privilege",
+    "conf/resource",
+    "conf/systemd/pkg-sadleracme-bootstrap.service",
+    "conf/systemd/pkg-sadleracme-queue.path",
+    "conf/systemd/pkg-sadleracme-renew.service",
+    "conf/systemd/pkg-sadleracme-renew.timer",
+    "conf/systemd/pkg-sadleracme-setup-expire.service",
+    "conf/systemd/pkg-sadleracme-setup-expire.timer",
+    "conf/systemd/pkg-sadleracme-setup.service",
+    "conf/systemd/pkg-sadleracme-transfer-expire.service",
+    "conf/systemd/pkg-sadleracme-transfer-expire.timer",
+    "conf/systemd/pkg-sadleracme-worker.service",
+    "scripts/postinst",
+    "scripts/postuninst",
+    "scripts/postupgrade",
+    "scripts/preinst",
+    "scripts/preuninst",
+    "scripts/preupgrade",
+    "scripts/start-stop-status"
+  ],
+  "cgi_only_version_and_migration_text": true,
+  "metadata_only_version_description_beta": true,
+  "payload_metadata": {
+    "bin": {
+      "mode": "0o755",
+      "size": 0,
+      "directory": true
+    },
+    "bin/sadleracme-root": {
+      "mode": "0o755",
+      "size": 136848,
+      "directory": false
+    },
+    "bin/sadleracme-emergency-remove": {
+      "mode": "0o755",
+      "size": 40237,
+      "directory": false
+    },
+    "ui": {
+      "mode": "0o755",
+      "size": 0,
+      "directory": true
+    },
+    "ui/layout.css": {
+      "mode": "0o644",
+      "size": 24949,
+      "directory": false
+    },
+    "ui/SadlerACME.js": {
+      "mode": "0o644",
+      "size": 26201,
+      "directory": false
+    },
+    "ui/WORKFLOW.html": {
+      "mode": "0o644",
+      "size": 14900,
+      "directory": false
+    },
+    "ui/workflow.css": {
+      "mode": "0o644",
+      "size": 6583,
+      "directory": false
+    },
+    "ui/workflow.js": {
+      "mode": "0o644",
+      "size": 64679,
+      "directory": false
+    },
+    "ui/index.cgi": {
+      "mode": "0o755",
+      "size": 82894,
+      "directory": false
+    },
+    "ui/sadleracme-emergency-remove.txt": {
+      "mode": "0o644",
+      "size": 40237,
+      "directory": false
+    },
+    "ui/nav-icons.svg": {
+      "mode": "0o644",
+      "size": 1569,
+      "directory": false
+    },
+    "ui/RECOVERY.html": {
+      "mode": "0o644",
+      "size": 22154,
+      "directory": false
+    },
+    "ui/images": {
+      "mode": "0o755",
+      "size": 0,
+      "directory": true
+    },
+    "ui/images/sadleracme_48.png": {
+      "mode": "0o644",
+      "size": 928,
+      "directory": false
+    },
+    "ui/images/sadleracme_256.png": {
+      "mode": "0o644",
+      "size": 4855,
+      "directory": false
+    },
+    "ui/images/sadleracme_64.png": {
+      "mode": "0o644",
+      "size": 1255,
+      "directory": false
+    },
+    "ui/images/sadleracme_72.png": {
+      "mode": "0o644",
+      "size": 1411,
+      "directory": false
+    },
+    "ui/images/sadleracme_32.png": {
+      "mode": "0o644",
+      "size": 717,
+      "directory": false
+    },
+    "ui/images/sadleracme_16.png": {
+      "mode": "0o644",
+      "size": 179,
+      "directory": false
+    },
+    "ui/images/sadleracme_24.png": {
+      "mode": "0o644",
+      "size": 233,
+      "directory": false
+    },
+    "ui/config": {
+      "mode": "0o644",
+      "size": 545,
+      "directory": false
+    },
+    "ui/theme.js": {
+      "mode": "0o644",
+      "size": 1829,
+      "directory": false
+    },
+    "ui/LICENSE.txt": {
+      "mode": "0o644",
+      "size": 35149,
+      "directory": false
+    },
+    "ui/QUICKSTART.html": {
+      "mode": "0o644",
+      "size": 10055,
+      "directory": false
+    },
+    "share": {
+      "mode": "0o755",
+      "size": 0,
+      "directory": true
+    },
+    "share/sadleracme": {
+      "mode": "0o755",
+      "size": 0,
+      "directory": true
+    },
+    "share/sadleracme/NOTICE.txt": {
+      "mode": "0o644",
+      "size": 1720,
+      "directory": false
+    },
+    "share/acme.sh-3.1.5": {
+      "mode": "0o755",
+      "size": 0,
+      "directory": true
+    },
+    "share/acme.sh-3.1.5/acme.sh": {
+      "mode": "0o644",
+      "size": 294737,
+      "directory": false
+    },
+    "share/acme.sh-3.1.5/dnsapi": {
+      "mode": "0o755",
+      "size": 0,
+      "directory": true
+    },
+    "share/acme.sh-3.1.5/dnsapi/dns_cf.sh": {
+      "mode": "0o644",
+      "size": 7331,
+      "directory": false
+    },
+    "share/acme.sh-3.1.5/LICENSE.md": {
+      "mode": "0o644",
+      "size": 35149,
+      "directory": false
+    }
+  },
+  "payload_sha256": {
+    "bin/sadleracme-root": "3c1fb6d1edbcd1cfec4701684e398255bea3c2d753d9f8096fa2e0f1a1c5c927",
+    "bin/sadleracme-emergency-remove": "fff8b068aaf5d9b8242b5d20c93ab7a7bfc53ec3e7063634ac649e134c3dc4b5",
+    "ui/layout.css": "a830207cbbabe7ea8351c0b709c19540e0b7611f83e31afa9273232d7320021e",
+    "ui/SadlerACME.js": "611e09cbf2b85daf41dc53915c6301edf83d5235e1508bb5ca1bfa70d94f6530",
+    "ui/WORKFLOW.html": "120217219f718a6ad13cfb53afb9ca1ef51e2790f4c1eb4b108921cedecaddef",
+    "ui/workflow.css": "34a8cdf4e791f79d6160821a419e568fa8d82266816ff14581ff20997fb477cf",
+    "ui/workflow.js": "924dd8ecf363aff8af3a581523c60447c74277007cd215b8a3c6ffdd08b85dac",
+    "ui/index.cgi": "059ca57b101c78cb7b63c97cef93db9f7de357d50e06e8d1d465e119079359ec",
+    "ui/sadleracme-emergency-remove.txt": "fff8b068aaf5d9b8242b5d20c93ab7a7bfc53ec3e7063634ac649e134c3dc4b5",
+    "ui/nav-icons.svg": "dccc8f8f0457064342724d08852d499e7522b5f309c7f755796f46b0ca996718",
+    "ui/RECOVERY.html": "c04ddbc6c7ccfc27a505d92355e15ce73c53303ce05396854d1b6834e62a08fc",
+    "ui/images/sadleracme_48.png": "5b8157c9e67273c55c4b0ec22d786d8a0a06d18035cdbb0f6d3eec57695b49c8",
+    "ui/images/sadleracme_256.png": "6f063ea17e010cbb2c9c6b96565e9def3dfe5f66b624961d29f88f0adfcddea1",
+    "ui/images/sadleracme_64.png": "bf5dae985554a16b3e3752b07207c9643691c23fd841441cb2d2044b4a5317d1",
+    "ui/images/sadleracme_72.png": "dcf2a038c00df90ae6e6d318e9fa1ff62be8965d84fecf55a396e7acbd0d107e",
+    "ui/images/sadleracme_32.png": "d25efa12afe95524a0dcd37d005d2d69fcf389900547c1d3b0ebcd38ed177465",
+    "ui/images/sadleracme_16.png": "0a7a8c2dfe3175ab0ac575d92124d6236a3e1f45f7bfbe46bb17eaf677d78a2c",
+    "ui/images/sadleracme_24.png": "fd0012f26ea8a4d19f0d6e1351f38bb9e7bb28e829ec1f3d39fc05c8a6dd8889",
+    "ui/config": "19a92b4c33d293db124f8a1200bc1ffee8a5088d933f82ebaaced632a3d26965",
+    "ui/theme.js": "86534fa7b21e4cc63e17ea4e3c34ff4f8c4ba1d67cb052340033125313bccf3c",
+    "ui/LICENSE.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "ui/QUICKSTART.html": "64176af1d1901e0561c235a9ee4da6bdabace63868ed786da6f18934b449cbf6",
+    "share/sadleracme/NOTICE.txt": "326df3d15f0dcf1cc988c673ebf5f65bb6c37f5e77cae231577ae2bebdd7c361",
+    "share/acme.sh-3.1.5/acme.sh": "812c228e9c6374b99c8bd615ca8172b6dd483bd93a5ce862f58531e461d04be8",
+    "share/acme.sh-3.1.5/dnsapi/dns_cf.sh": "9628ee8238cb3f9cfa1b1a985c0e9593436a3e4f8a9d65a6f775b981be9e76c8",
+    "share/acme.sh-3.1.5/LICENSE.md": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+  }
+}

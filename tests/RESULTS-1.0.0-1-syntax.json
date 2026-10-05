@@ -1,0 +1,341 @@
+{
+  "version": "1.0.0-1",
+  "passed": true,
+  "checks": [
+    {
+      "kind": "JavaScript",
+      "file": "src/ui/SadlerACME.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "JavaScript",
+      "file": "src/ui/theme.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "JavaScript",
+      "file": "src/ui/workflow.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "src/bin/sadleracme-emergency-remove",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "src/bin/sadleracme-root",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "src/lib/lifecycle.sh",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "src/lib/package-storage.sh",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "src/lib/recovery.sh",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "src/lib/status-helpers.sh",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "src/lib/timer-status.sh",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "src/lib/workflow.sh",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "src/ui/index.cgi",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "src/ui/workflow-api.sh",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "pkg/scripts/postinst",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "pkg/scripts/postuninst",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "pkg/scripts/postupgrade",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "pkg/scripts/preinst",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "pkg/scripts/preuninst",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "pkg/scripts/preupgrade",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": "pkg/scripts/start-stop-status",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": ".build/payload/bin/sadleracme-emergency-remove",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "shell",
+      "file": ".build/payload/bin/sadleracme-root",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "assembled CGI",
+      "file": ".build/payload/ui/index.cgi",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "JSON",
+      "file": "src/ui/config",
+      "passed": true
+    },
+    {
+      "kind": "JSON",
+      "file": "pkg/conf/privilege",
+      "passed": true
+    },
+    {
+      "kind": "JSON",
+      "file": "pkg/conf/resource",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tools/assemble_worker.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tools/build_help.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tools/build_units.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tools/check_release_docs.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tools/check_ui_release.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tools/check_ui_syntax.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/css-maintenance.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/email-security.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/layout-common.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/lifecycle.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/migration-security.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/onboarding-status.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/package-storage.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/recovery.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/regression.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/renewal-label.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/scheduled-renewal.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/scheduler-bridge.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/scheduler-sqlite.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/theme-contrast.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/timer-status.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/ui-browser.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/wizard-clearance.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/wizard-worker.py",
+      "passed": true
+    },
+    {
+      "kind": "Python AST",
+      "file": "tests/workflow-api.py",
+      "passed": true
+    },
+    {
+      "kind": "rendered JavaScript",
+      "file": "rendered-inline-0.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "rendered JavaScript",
+      "file": "rendered-inline-1.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "kind": "PNG",
+      "file": "src/ui/images/sadleracme_16.png",
+      "passed": true
+    },
+    {
+      "kind": "PNG",
+      "file": "src/ui/images/sadleracme_24.png",
+      "passed": true
+    },
+    {
+      "kind": "PNG",
+      "file": "src/ui/images/sadleracme_256.png",
+      "passed": true
+    },
+    {
+      "kind": "PNG",
+      "file": "src/ui/images/sadleracme_32.png",
+      "passed": true
+    },
+    {
+      "kind": "PNG",
+      "file": "src/ui/images/sadleracme_48.png",
+      "passed": true
+    },
+    {
+      "kind": "PNG",
+      "file": "src/ui/images/sadleracme_64.png",
+      "passed": true
+    },
+    {
+      "kind": "PNG",
+      "file": "src/ui/images/sadleracme_72.png",
+      "passed": true
+    },
+    {
+      "kind": "PNG",
+      "file": "pkg/PACKAGE_ICON.PNG",
+      "passed": true
+    },
+    {
+      "kind": "PNG",
+      "file": "pkg/PACKAGE_ICON_256.PNG",
+      "passed": true
+    }
+  ]
+}

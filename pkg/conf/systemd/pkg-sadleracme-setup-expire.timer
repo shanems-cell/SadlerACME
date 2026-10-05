@@ -1,0 +1,7 @@
+[Unit]
+Description=Bound SadlerACME temporary setup to one hour
+[Timer]
+OnActiveSec=60min
+OnUnitActiveSec=5min
+AccuracySec=1min
+Unit=pkg-sadleracme-setup-expire.service

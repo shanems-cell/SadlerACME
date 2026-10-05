@@ -1,0 +1,23 @@
+test_all_json_actions_require_admin_and_csrf (__main__.WorkflowAPI.test_all_json_actions_require_admin_and_csrf) ... ok
+test_auto_change_checks_hash_and_permanent_state (__main__.WorkflowAPI.test_auto_change_checks_hash_and_permanent_state) ... ok
+test_auto_save_queues_only_status_refresh_with_committed_settings (__main__.WorkflowAPI.test_auto_save_queues_only_status_refresh_with_committed_settings) ... ok
+test_auto_save_succeeds_if_status_refresh_cannot_be_queued (__main__.WorkflowAPI.test_auto_save_succeeds_if_status_refresh_cannot_be_queued) ... ok
+test_automation_intent_is_explicit_and_authenticated (__main__.WorkflowAPI.test_automation_intent_is_explicit_and_authenticated) ... ok
+test_configuration_lock_blocks_manual_save_and_auto (__main__.WorkflowAPI.test_configuration_lock_blocks_manual_save_and_auto) ... ok
+test_download_requires_valid_fresh_fixed_path_and_queues_deletion (__main__.WorkflowAPI.test_download_requires_valid_fresh_fixed_path_and_queues_deletion) ... ok
+test_draft_test_is_immutable_and_never_saves_settings (__main__.WorkflowAPI.test_draft_test_is_immutable_and_never_saves_settings) ... ok
+test_enabling_auto_requires_applied_matching_recovered_profile (__main__.WorkflowAPI.test_enabling_auto_requires_applied_matching_recovered_profile) ... ok
+test_invalid_draft_never_queues_or_saves (__main__.WorkflowAPI.test_invalid_draft_never_queues_or_saves) ... ok
+test_job_receipts_survive_other_job_completion (__main__.WorkflowAPI.test_job_receipts_survive_other_job_completion) ... ok
+test_large_non_restore_payload_rejected (__main__.WorkflowAPI.test_large_non_restore_payload_rejected) ... ok
+test_other_rejections_do_not_claim_worker_recovery (__main__.WorkflowAPI.test_other_rejections_do_not_claim_worker_recovery) ... ok
+test_prepared_uninstall_is_not_classified_as_worker_expiry (__main__.WorkflowAPI.test_prepared_uninstall_is_not_classified_as_worker_expiry) ... ok
+test_restore_accepts_token_only_and_settings_only_document (__main__.WorkflowAPI.test_restore_accepts_token_only_and_settings_only_document) ... ok
+test_saved_domain_change_reports_pending (__main__.WorkflowAPI.test_saved_domain_change_reports_pending) ... ok
+test_settings_never_returns_token (__main__.WorkflowAPI.test_settings_never_returns_token) ... ok
+test_unavailable_worker_rejected_before_job_or_configuration_change (__main__.WorkflowAPI.test_unavailable_worker_rejected_before_job_or_configuration_change) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 11.243s
+
+OK

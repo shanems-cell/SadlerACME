@@ -1,0 +1,18 @@
+PASS Fresh full-size desktop passes explicit preferred dimensions
+PASS Missing incoming config and missing viewport have usable defaults
+PASS Constructor does not rely on prototype geometry
+PASS Laptop viewport caps the default size
+PASS Small screen caps minimum dimensions as well
+PASS Narrow viewport never acquires an off-screen desktop minimum
+PASS Document client dimensions are the viewport fallback
+PASS Invalid viewport values fall back without NaN geometry
+PASS Usable incoming dimensions and DSM app metadata survive
+PASS Tiny incoming dimensions cannot reproduce 250px initial window
+PASS Oversized supplied geometry fits the current viewport
+PASS Invalid incoming dimensions use preferred defaults
+PASS Incoming configuration is not mutated
+PASS Window chrome capabilities are passed to parent explicitly
+PASS Session token stays on the existing same-origin iframe
+PASS Request/open handlers do not force user geometry back
+PASS Destroy still removes the scheduler message listener
+17/17 launcher tests passed (fixture, not DSM).

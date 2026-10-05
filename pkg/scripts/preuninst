@@ -1,0 +1,46 @@
+#!/bin/sh
+set -u
+[ "${SYNOPKG_PKG_STATUS:-}" != UPGRADE ] || exit 0
+PROTECTED='/usr/local/etc/sadleracme'
+REMOVAL='/usr/local/etc/sadleracme-removal'
+VAR="${SYNOPKG_PKGVAR:-/var/packages/sadleracme/var}"
+refuse() {
+  msg='Open SadlerACME Uninstall and prepare uninstall, then retry. No SadlerACME data has been deleted. If preparation fails, follow the Emergency SSH removal instructions.'
+  echo "$msg" >&2
+  [ -z "${SYNOPKG_TEMP_LOGFILE:-}" ] || echo "$msg" > "$SYNOPKG_TEMP_LOGFILE"
+  exit 1
+}
+safe_root_dir() {
+  [ -d "$1" ] && [ ! -L "$1" ] && [ "$(stat -c %u "$1" 2>/dev/null)" = 0 ] &&
+    [ -z "$(find "$1" -maxdepth 0 \( -perm -020 -o -perm -002 \) -print 2>/dev/null)" ]
+}
+# Only an untouched installation can bypass preparation. Older releases may
+# have retained root-owned certificate material in DSM's physical VAR storage,
+# even when the modern protected storage has already been removed.
+if [ ! -e "$VAR/automation.requested" ] && [ ! -L "$VAR/automation.requested" ] && [ ! -e "$VAR/root" ] && [ ! -L "$VAR/root" ] && [ ! -e "$PROTECTED" ] && [ ! -L "$PROTECTED" ] && [ ! -e "$REMOVAL" ] && [ ! -L "$REMOVAL" ]; then exit 0; fi
+safe_root_dir "$PROTECTED" && safe_root_dir "$PROTECTED/status" && safe_root_dir "$REMOVAL" || refuse
+ready="$PROTECTED/status/uninstall_ready"
+[ -f "$ready" ] && [ ! -L "$ready" ] && [ "$(stat -c %u "$ready")" = 0 ] && [ "$(stat -c %a "$ready")" = 644 ] && [ "$(cat "$ready")" = yes ] || refuse
+[ -f "$REMOVAL/armed" ] && [ ! -L "$REMOVAL/armed" ] && [ "$(stat -c %u "$REMOVAL/armed")" = 0 ] || refuse
+# Package hooks cannot read root-private manifests. Verify their ownership,
+# type and mode; the root monitor validates their content and target identity.
+# Older preparations without both records must be repeated with this version.
+for record in "$REMOVAL/package-var" "$REMOVAL/package-etc"; do
+  [ -f "$record" ] && [ ! -L "$record" ] && [ -s "$record" ] && [ "$(stat -c %u "$record")" = 0 ] && [ "$(stat -c %a "$record")" = 600 ] || refuse
+done
+# A preparation from an older build did not record DSM's configuration alias.
+# Require preparation again when that link exists, so an older independent
+# monitor cannot complete uninstall while leaving the alias behind.
+if [ -L /usr/syno/etc/packages/sadleracme ]; then
+  record="$REMOVAL/package-etc-alias"
+  [ -f "$record" ] && [ ! -L "$record" ] && [ -s "$record" ] && [ "$(stat -c %u "$record")" = 0 ] && [ "$(stat -c %a "$record")" = 600 ] || refuse
+fi
+# Preparation must arm cleanup, not only set a stale boolean flag.
+report=$(systemctl show sadleracme-cleanup.service -p ActiveState 2>/dev/null) || refuse
+[ "$(printf '%s\n' "$report" | sed -n 's/^ActiveState=//p')" = active ] || refuse
+# A stale ready flag cannot override manually restarted background triggers.
+for unit in pkg-sadleracme-queue.path pkg-sadleracme-renew.timer pkg-sadleracme-setup-expire.timer pkg-sadleracme-transfer-expire.timer; do
+  report=$(systemctl show "$unit" -p ActiveState 2>/dev/null) || refuse
+  case "$(printf '%s\n' "$report" | sed -n 's/^ActiveState=//p')" in inactive|failed) ;; *) refuse;; esac
+done
+exit 0

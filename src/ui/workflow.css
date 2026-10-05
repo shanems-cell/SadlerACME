@@ -1,0 +1,352 @@
+/*
+ * SADLERACME WORKFLOW ARRANGEMENTS — loaded after layout.css.
+ *
+ * Keep wizard-only placement, review/preview panels, log height and modal
+ * stacking here. Reuse layout.css for the theme, .btn, form fields, card grids,
+ * action-row gaps, log surfaces and success/error colours. The workflow- prefix
+ * identifies components, not a separate visual theme.
+ *
+ * Index: 1. Workflow containers  2. Status placement  3. Choices/navigation
+ *        4. Wizard/review  5. Modal stacking  6. Worker/log placement
+ *        7. Recovery previews  8. Narrow-window arrangements
+ *
+ * Cosmetic rules only: no request/worker/restore behaviour lives in this file.
+ */
+
+/* 1. Workflow containers. */
+
+.workflow-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.workflow-intro p {
+  margin: 0;
+}
+
+.workflow-stack {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  align-content: start;
+}
+
+/* 2. Status placement; border and semantic colours come from layout.css. */
+
+.workflow-status {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  margin-top: 12px;
+  padding: 9px 11px;
+  background: var(--surface2);
+}
+
+.workflow-status:empty {
+  display: none;
+}
+
+.workflow-danger {
+  border-left: 3px solid var(--bad);
+  padding: 10px 12px;
+  background: var(--danger-bg);
+}
+
+.workflow-link {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.btn.workflow-link {
+  text-decoration: none;
+}
+
+button.workflow-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+}
+
+/* 3. Choices and step navigation. */
+
+.workflow-choice {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  padding: 8px 0;
+}
+
+.workflow-choice input {
+  margin-top: 4px;
+}
+
+.workflow-choice label {
+  margin: 0;
+}
+
+.workflow-steps {
+  font-size: var(--font-small);
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+/* 4. Wizard and review panels; .modalbox supplies the shared dialog surface. */
+
+.workflow-dialog {
+  width: min(820px,100%);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workflow-dialog h2 {
+  margin-bottom: 7px;
+}
+
+.workflow-dialog .settingsgrid {
+  gap: 12px 18px;
+}
+
+.workflow-dialog .field {
+  margin: 0;
+}
+
+.workflow-dialog .modalactions {
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.workflow-dialog .modalactions .workflow-buttons {
+  margin-left: auto;
+}
+
+.workflow-dialog input[readonly],
+.workflow-dialog textarea[readonly],
+.workflow-dialog select:disabled {
+  color: var(--muted);
+}
+
+.workflow-review {
+  padding: 10px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  margin: 12px 0;
+}
+
+.workflow-required {
+  color: var(--warn);
+}
+
+/* 5. Modal stacking: approvals must appear above the wizard. */
+
+#workflowModal {
+  z-index: 1050;
+}
+
+#schedulerInstallModal {
+  z-index: 1100;
+}
+
+#workflowPasswordModal {
+  z-index: 1150;
+}
+
+/* 6. Worker controls and log placement. */
+
+.workflow-last-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.workflow-last-action span {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.workflow-readiness {
+  margin: 0 0 12px;
+}
+
+.workflow-backup-file {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 10px 0;
+}
+
+.workflow-section-actions>.workflow-buttons+p,
+.workflow-section-actions>a+p {
+  margin-top: 8px;
+}
+
+.workflow-operation-note {
+  padding: 10px 0;
+  color: var(--muted);
+}
+
+.workflow-dialog #workflowContinueApplied {
+  margin-top: 14px;
+}
+
+.workflow-dialog #workflowWorkerControls {
+  margin-top: 14px;
+}
+
+.workflow-log {
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  line-height: 1.65;
+}
+
+/* Visible log takes remaining space without pushing the footer off screen. */
+.workflow-dialog.with-log {
+  height: min(820px,calc(100vh - 44px));
+}
+
+.workflow-steps,
+.workflow-dialog>h2,
+.workflow-footer {
+  flex: 0 0 auto;
+}
+
+.workflow-body {
+  min-height: 0;
+  flex: 0 1 auto;
+  overflow: auto;
+  /* Keep the dropdown arrow clear of overlay scrollbars too: a stable
+   * native gutter alone reserves no space for an overlay scrollbar. */
+  scrollbar-gutter: stable;
+  padding: 2px 22px 2px 0;
+}
+
+#workflowLogPanel {
+  flex: 1 1 180px;
+  min-height: 100px;
+  margin-top: 12px;
+}
+
+.workflow-footer #workflowFooterNote {
+  margin: 10px 0 0;
+}
+
+.workflow-footer .modalactions {
+  margin-top: 12px;
+}
+
+#workflowWorkerReady {
+  margin-top: 6px;
+}
+
+.workflow-stage-wait {
+  margin-top: 12px;
+}
+
+/* 7. Recovery pages use the common panel/grid system in layout.css. */
+
+.workflow-eyebrow {
+  color: var(--warn);
+  font-size: var(--font-small);
+  margin-bottom: 7px;
+}
+
+.workflow-after {
+  padding-top: 12px;
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.workflow-after p:last-child {
+  margin-bottom: 0;
+}
+
+.workflow-restore-preview {
+  padding: 9px 10px;
+  margin: 0 0 10px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius);
+}
+
+.workflow-restore-preview h3 {
+  margin: 0 0 5px;
+  font-size: 14px;
+}
+
+.workflow-preview-text {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  max-height: 180px;
+  overflow: auto;
+  font-size: 13px;
+}
+
+.workflow-restore-preview .workflow-preview-note {
+  margin: 6px 0 0;
+  font-size: var(--font-small);
+  color: var(--muted);
+}
+
+/* 8. Narrow-window workflow arrangements. */
+
+@media (max-width:760px) {
+  .workflow-intro {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .workflow-dialog .settingsgrid {
+    grid-template-columns: minmax(0,1fr);
+    grid-template-areas: "description" "key" "domains" "options" "email" "token";
+  }
+  .workflow-dialog .modalactions {
+    align-items: flex-start;
+  }
+  .workflow-dialog .modalactions .workflow-buttons {
+    margin-left: 0;
+  }
+  .workflow-dialog {
+    max-height: calc(100vh - 24px);
+  }
+  #workflowModal {
+    padding: 12px;
+  }
+  .workflow-section-actions {
+    padding-top: 4px;
+  }
+}
+
+/* Extremely short/zoomed views: preserve every control via whole-dialog
+ * scrolling rather than crushing the content or hiding the navigation. */
+@media (max-height:420px) {
+  .workflow-dialog,
+  .workflow-dialog.with-log {
+    display: block;
+    height: auto;
+    overflow: auto;
+  }
+  .workflow-body {
+    overflow: visible;
+  }
+  #workflowLogPanel {
+    height: 140px;
+  }
+}

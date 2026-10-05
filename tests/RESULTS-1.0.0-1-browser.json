@@ -1,0 +1,1038 @@
+{
+  "scope": "Local Chromium about:blank DOM/layout/JS; in-memory fetch and storage fixtures; no real DSM/ACME operations or native persistence claim",
+  "cases": [
+    {
+      "case": "fresh Dashboard starts without auto-wizard or failing refresh",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:settings-fit",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:settings-fit",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "1320:resized-log",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:settings-fit",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:settings-fit",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "1188:resized-log",
+      "passed": true
+    },
+    {
+      "case": "1024x720:dark:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:dark:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:dark:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:dark:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:dark:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:dark:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:dark:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:dark:settings-fit",
+      "passed": true
+    },
+    {
+      "case": "1024x720:dark:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "1024x720:light:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:light:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:light:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:light:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:light:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:light:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:light:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "1024x720:light:settings-fit",
+      "passed": true
+    },
+    {
+      "case": "1024x720:light:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "1024:resized-log",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "900:resized-log",
+      "passed": true
+    },
+    {
+      "case": "820x680:dark:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:dark:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:dark:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:dark:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:dark:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:dark:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:dark:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:dark:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "820x680:light:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:light:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:light:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:light:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:light:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:light:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:light:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "820x680:light:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "820:resized-log",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "768:resized-log",
+      "passed": true
+    },
+    {
+      "case": "570x700:dark:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:dark:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:dark:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:dark:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:dark:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:dark:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:dark:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:dark:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "570x700:light:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:light:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:light:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:light:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:light:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:light:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:light:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "570x700:light:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "570:resized-log",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:dashboard:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:settings:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:automation:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:backup:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:uninstall:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:logs:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:about:bounds",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:long-log-fit",
+      "passed": true
+    },
+    {
+      "case": "390:resized-log",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:empty-settings-fit",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:empty-settings-fit",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:empty-settings-fit",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:empty-settings-fit",
+      "passed": true
+    },
+    {
+      "case": "1024x720:dark:empty-settings-fit",
+      "passed": true
+    },
+    {
+      "case": "1024x720:light:empty-settings-fit",
+      "passed": true
+    },
+    {
+      "case": "Unconfigured failure is not replaced by setup success wording",
+      "passed": true
+    },
+    {
+      "case": "Rearranged form keeps exact field names and values across theme switch",
+      "passed": true
+    },
+    {
+      "case": "Very short Logs window permits reachable fallback page scrolling",
+      "passed": true
+    },
+    {
+      "case": "Very short wizard keeps Exit reachable with fallback scrolling",
+      "passed": true
+    },
+    {
+      "case": "theme changes preserve draft and preference across simulated reopen; recent tab retained",
+      "passed": true
+    },
+    {
+      "case": "log pause/filter and manual reading position retained across polls and theme",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:wizard-1:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:wizard-1:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:wizard-2:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:wizard-2:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:wizard-3:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:wizard-3:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:wizard-4:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:wizard-4:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:wizard-5:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1320x780:dark:wizard-5:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:wizard-1:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:wizard-1:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:wizard-2:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:wizard-2:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:wizard-3:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:wizard-3:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:wizard-4:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:wizard-4:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:wizard-5:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1320x780:light:wizard-5:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:wizard-1:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:wizard-1:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:wizard-2:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:wizard-2:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:wizard-3:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:wizard-3:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:wizard-4:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:wizard-4:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:wizard-5:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1188x708:dark:wizard-5:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:wizard-1:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:wizard-1:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:wizard-2:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:wizard-2:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:wizard-3:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:wizard-3:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:wizard-4:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:wizard-4:logs=True",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:wizard-5:logs=False",
+      "passed": true
+    },
+    {
+      "case": "1188x708:light:wizard-5:logs=True",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:wizard-1:logs=False",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:wizard-1:logs=True",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:wizard-2:logs=False",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:wizard-2:logs=True",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:wizard-3:logs=False",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:wizard-3:logs=True",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:wizard-4:logs=False",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:wizard-4:logs=True",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:wizard-5:logs=False",
+      "passed": true
+    },
+    {
+      "case": "900x620:dark:wizard-5:logs=True",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:wizard-1:logs=False",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:wizard-1:logs=True",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:wizard-2:logs=False",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:wizard-2:logs=True",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:wizard-3:logs=False",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:wizard-3:logs=True",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:wizard-4:logs=False",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:wizard-4:logs=True",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:wizard-5:logs=False",
+      "passed": true
+    },
+    {
+      "case": "900x620:light:wizard-5:logs=True",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:wizard-1:logs=False",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:wizard-1:logs=True",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:wizard-2:logs=False",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:wizard-2:logs=True",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:wizard-3:logs=False",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:wizard-3:logs=True",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:wizard-4:logs=False",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:wizard-4:logs=True",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:wizard-5:logs=False",
+      "passed": true
+    },
+    {
+      "case": "768x680:dark:wizard-5:logs=True",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:wizard-1:logs=False",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:wizard-1:logs=True",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:wizard-2:logs=False",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:wizard-2:logs=True",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:wizard-3:logs=False",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:wizard-3:logs=True",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:wizard-4:logs=False",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:wizard-4:logs=True",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:wizard-5:logs=False",
+      "passed": true
+    },
+    {
+      "case": "768x680:light:wizard-5:logs=True",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:wizard-1:logs=False",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:wizard-1:logs=True",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:wizard-2:logs=False",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:wizard-2:logs=True",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:wizard-3:logs=False",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:wizard-3:logs=True",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:wizard-4:logs=False",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:wizard-4:logs=True",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:wizard-5:logs=False",
+      "passed": true
+    },
+    {
+      "case": "390x780:dark:wizard-5:logs=True",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:wizard-1:logs=False",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:wizard-1:logs=True",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:wizard-2:logs=False",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:wizard-2:logs=True",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:wizard-3:logs=False",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:wizard-3:logs=True",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:wizard-4:logs=False",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:wizard-4:logs=True",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:wizard-5:logs=False",
+      "passed": true
+    },
+    {
+      "case": "390x780:light:wizard-5:logs=True",
+      "passed": true
+    },
+    {
+      "case": "storage blocked: theme remains functional",
+      "passed": true
+    },
+    {
+      "case": "invalid saved palette falls back to dark",
+      "passed": true
+    },
+    {
+      "case": "actual wizard flow: staging receipt, palette event, safe exit without saving draft",
+      "passed": true
+    }
+  ],
+  "failures": []
+}

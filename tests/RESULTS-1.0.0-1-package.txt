@@ -1,0 +1,4 @@
+PASS exact allowed changes, safe archive paths and file ownership/modes
+PASS unchanged launcher, workflow/theme/CSS, worker/helper, scheduler, ten units, lifecycle and vendor
+PASS current generated help and source/package correspondence
+SPK SHA256 4220114fe2ed523ac7cd222abdc2ecdd0822fb045fb66878f2c37c3232f34d12

@@ -1,0 +1,9 @@
+test_scheduled_due_issuance_deploys_and_records_renewal (__main__.ScheduledRenewal.test_scheduled_due_issuance_deploys_and_records_renewal) ... ok
+test_scheduled_issuance_failure_preserves_deployed_certificate_and_history (__main__.ScheduledRenewal.test_scheduled_issuance_failure_preserves_deployed_certificate_and_history) ... ok
+test_scheduled_before_first_apply_does_not_invoke_acme (__main__.ScheduledRenewal.test_scheduled_before_first_apply_does_not_invoke_acme) ... ok
+test_scheduled_changed_configuration_requires_explicit_apply (__main__.ScheduledRenewal.test_scheduled_changed_configuration_requires_explicit_apply) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 9.381s
+
+OK

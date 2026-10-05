@@ -1,0 +1,22 @@
+{
+  "SadlerACME.js": {
+    "SYNO.SDS.SadlerACME.Application": {
+      "type": "app",
+      "title": "SadlerACME",
+      "desc": "DNS-01 ACME certificate manager",
+      "icon": "images/sadleracme_{0}.png",
+      "appWindow": "SYNO.SDS.SadlerACME.MainWindow",
+      "allUsers": false,
+      "allowMultiInstance": false,
+      "hidden": false,
+      "depend": [
+        "SYNO.SDS.SadlerACME.MainWindow"
+      ]
+    },
+    "SYNO.SDS.SadlerACME.MainWindow": {
+      "type": "lib",
+      "title": "SadlerACME",
+      "desc": "SadlerACME"
+    }
+  }
+}

@@ -1,0 +1,1434 @@
+{
+  "scope": "Local Chromium actual CGI/scripts/styles; synthetic status only; overlay obstruction is a 17px fixture, not native DSM",
+  "baseline_css": null,
+  "cases": [
+    {
+      "case": "1320x780:dark:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1006,
+          "y": 289.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "1320x780:dark:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1006,
+          "y": 163.171875
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "1320x780:dark:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1004,
+          "y": 289.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "1320x780:dark:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1004,
+          "y": 163.171875
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "1320x780:dark:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1021,
+          "y": 289.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "1320x780:dark:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1021,
+          "y": 163.171875
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "1320x780:light:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1006,
+          "y": 289.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "1320x780:light:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1006,
+          "y": 163.171875
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "1320x780:light:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1004,
+          "y": 289.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "1320x780:light:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1004,
+          "y": 163.171875
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "1320x780:light:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1021,
+          "y": 289.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "1320x780:light:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 1021,
+          "y": 163.171875
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x620:dark:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 796,
+          "y": 209.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x620:dark:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 796,
+          "y": 163.171875
+        },
+        "bodyHeight": 243.296875
+      }
+    },
+    {
+      "case": "900x620:dark:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 794,
+          "y": 209.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x620:dark:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 794,
+          "y": 163.171875
+        },
+        "bodyHeight": 243.296875
+      }
+    },
+    {
+      "case": "900x620:dark:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 811,
+          "y": 209.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x620:dark:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 811,
+          "y": 163.171875
+        },
+        "bodyHeight": 243.296875
+      }
+    },
+    {
+      "case": "900x620:light:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 796,
+          "y": 209.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x620:light:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 796,
+          "y": 163.171875
+        },
+        "bodyHeight": 243.296875
+      }
+    },
+    {
+      "case": "900x620:light:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 794,
+          "y": 209.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x620:light:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 794,
+          "y": 163.171875
+        },
+        "bodyHeight": 243.296875
+      }
+    },
+    {
+      "case": "900x620:light:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 811,
+          "y": 209.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x620:light:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 811,
+          "y": 163.171875
+        },
+        "bodyHeight": 243.296875
+      }
+    },
+    {
+      "case": "900x560:dark:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 796,
+          "y": 179.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x560:dark:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 796,
+          "y": 163.171875
+        },
+        "bodyHeight": 205.734375
+      }
+    },
+    {
+      "case": "900x560:dark:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 794,
+          "y": 179.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x560:dark:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 794,
+          "y": 163.171875
+        },
+        "bodyHeight": 205.734375
+      }
+    },
+    {
+      "case": "900x560:dark:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 811,
+          "y": 179.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x560:dark:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 811,
+          "y": 163.171875
+        },
+        "bodyHeight": 205.734375
+      }
+    },
+    {
+      "case": "900x560:light:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 796,
+          "y": 179.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x560:light:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 796,
+          "y": 163.171875
+        },
+        "bodyHeight": 205.734375
+      }
+    },
+    {
+      "case": "900x560:light:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 794,
+          "y": 179.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x560:light:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 794,
+          "y": 163.171875
+        },
+        "bodyHeight": 205.734375
+      }
+    },
+    {
+      "case": "900x560:light:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": false,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 811,
+          "y": 179.59375
+        },
+        "bodyHeight": 305.359375
+      }
+    },
+    {
+      "case": "900x560:light:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 811,
+          "y": 163.171875
+        },
+        "bodyHeight": 205.734375
+      }
+    },
+    {
+      "case": "820x580:dark:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 734,
+          "y": 228.0625
+        },
+        "bodyHeight": 358.21875
+      }
+    },
+    {
+      "case": "820x580:dark:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 734,
+          "y": 228.0625
+        },
+        "bodyHeight": 246.21875
+      }
+    },
+    {
+      "case": "820x580:dark:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 732,
+          "y": 228.0625
+        },
+        "bodyHeight": 358.21875
+      }
+    },
+    {
+      "case": "820x580:dark:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 732,
+          "y": 228.0625
+        },
+        "bodyHeight": 246.21875
+      }
+    },
+    {
+      "case": "820x580:dark:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 749,
+          "y": 228.0625
+        },
+        "bodyHeight": 358.21875
+      }
+    },
+    {
+      "case": "820x580:dark:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 749,
+          "y": 228.0625
+        },
+        "bodyHeight": 246.21875
+      }
+    },
+    {
+      "case": "820x580:light:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 734,
+          "y": 228.0625
+        },
+        "bodyHeight": 358.21875
+      }
+    },
+    {
+      "case": "820x580:light:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 734,
+          "y": 228.0625
+        },
+        "bodyHeight": 246.21875
+      }
+    },
+    {
+      "case": "820x580:light:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 732,
+          "y": 228.0625
+        },
+        "bodyHeight": 358.21875
+      }
+    },
+    {
+      "case": "820x580:light:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 732,
+          "y": 228.0625
+        },
+        "bodyHeight": 246.21875
+      }
+    },
+    {
+      "case": "820x580:light:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 749,
+          "y": 228.0625
+        },
+        "bodyHeight": 358.21875
+      }
+    },
+    {
+      "case": "820x580:light:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 749,
+          "y": 228.0625
+        },
+        "bodyHeight": 246.21875
+      }
+    },
+    {
+      "case": "768x680:dark:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 682,
+          "y": 228.0625
+        },
+        "bodyHeight": 458.21875
+      }
+    },
+    {
+      "case": "768x680:dark:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 682,
+          "y": 228.0625
+        },
+        "bodyHeight": 333.359375
+      }
+    },
+    {
+      "case": "768x680:dark:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 680,
+          "y": 228.0625
+        },
+        "bodyHeight": 458.21875
+      }
+    },
+    {
+      "case": "768x680:dark:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 680,
+          "y": 228.0625
+        },
+        "bodyHeight": 333.359375
+      }
+    },
+    {
+      "case": "768x680:dark:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 697,
+          "y": 228.0625
+        },
+        "bodyHeight": 458.21875
+      }
+    },
+    {
+      "case": "768x680:dark:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 697,
+          "y": 228.0625
+        },
+        "bodyHeight": 333.359375
+      }
+    },
+    {
+      "case": "768x680:light:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 682,
+          "y": 228.0625
+        },
+        "bodyHeight": 458.21875
+      }
+    },
+    {
+      "case": "768x680:light:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 682,
+          "y": 228.0625
+        },
+        "bodyHeight": 333.359375
+      }
+    },
+    {
+      "case": "768x680:light:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 680,
+          "y": 228.0625
+        },
+        "bodyHeight": 458.21875
+      }
+    },
+    {
+      "case": "768x680:light:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 680,
+          "y": 228.0625
+        },
+        "bodyHeight": 333.359375
+      }
+    },
+    {
+      "case": "768x680:light:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 697,
+          "y": 228.0625
+        },
+        "bodyHeight": 458.21875
+      }
+    },
+    {
+      "case": "768x680:light:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 697,
+          "y": 228.0625
+        },
+        "bodyHeight": 333.359375
+      }
+    },
+    {
+      "case": "570x700:dark:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 497,
+          "y": 234.65625
+        },
+        "bodyHeight": 487.421875
+      }
+    },
+    {
+      "case": "570x700:dark:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 497,
+          "y": 244.65625
+        },
+        "bodyHeight": 341.453125
+      }
+    },
+    {
+      "case": "570x700:dark:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 495,
+          "y": 234.65625
+        },
+        "bodyHeight": 487.421875
+      }
+    },
+    {
+      "case": "570x700:dark:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 495,
+          "y": 244.65625
+        },
+        "bodyHeight": 341.453125
+      }
+    },
+    {
+      "case": "570x700:dark:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 512,
+          "y": 234.65625
+        },
+        "bodyHeight": 487.421875
+      }
+    },
+    {
+      "case": "570x700:dark:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 512,
+          "y": 244.65625
+        },
+        "bodyHeight": 341.453125
+      }
+    },
+    {
+      "case": "570x700:light:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 497,
+          "y": 234.65625
+        },
+        "bodyHeight": 487.421875
+      }
+    },
+    {
+      "case": "570x700:light:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 497,
+          "y": 244.65625
+        },
+        "bodyHeight": 341.453125
+      }
+    },
+    {
+      "case": "570x700:light:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 495,
+          "y": 234.65625
+        },
+        "bodyHeight": 487.421875
+      }
+    },
+    {
+      "case": "570x700:light:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 495,
+          "y": 244.65625
+        },
+        "bodyHeight": 341.453125
+      }
+    },
+    {
+      "case": "570x700:light:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 512,
+          "y": 234.65625
+        },
+        "bodyHeight": 487.421875
+      }
+    },
+    {
+      "case": "570x700:light:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 512,
+          "y": 244.65625
+        },
+        "bodyHeight": 341.453125
+      }
+    },
+    {
+      "case": "390x780:dark:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 317,
+          "y": 234.65625
+        },
+        "bodyHeight": 567.421875
+      }
+    },
+    {
+      "case": "390x780:dark:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 317,
+          "y": 244.65625
+        },
+        "bodyHeight": 407.765625
+      }
+    },
+    {
+      "case": "390x780:dark:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 315,
+          "y": 234.65625
+        },
+        "bodyHeight": 567.421875
+      }
+    },
+    {
+      "case": "390x780:dark:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 315,
+          "y": 244.65625
+        },
+        "bodyHeight": 407.765625
+      }
+    },
+    {
+      "case": "390x780:dark:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 332,
+          "y": 234.65625
+        },
+        "bodyHeight": 567.421875
+      }
+    },
+    {
+      "case": "390x780:dark:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 332,
+          "y": 244.65625
+        },
+        "bodyHeight": 407.765625
+      }
+    },
+    {
+      "case": "390x780:light:native:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 317,
+          "y": 234.65625
+        },
+        "bodyHeight": 567.421875
+      }
+    },
+    {
+      "case": "390x780:light:native:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 37,
+        "nativeGutter": 15,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 317,
+          "y": 244.65625
+        },
+        "bodyHeight": 407.765625
+      }
+    },
+    {
+      "case": "390x780:light:classic:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 315,
+          "y": 234.65625
+        },
+        "bodyHeight": 567.421875
+      }
+    },
+    {
+      "case": "390x780:light:classic:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 39,
+        "nativeGutter": 17,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 315,
+          "y": 244.65625
+        },
+        "bodyHeight": 407.765625
+      }
+    },
+    {
+      "case": "390x780:light:overlay:logs=False",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 332,
+          "y": 234.65625
+        },
+        "bodyHeight": 567.421875
+      }
+    },
+    {
+      "case": "390x780:light:overlay:logs=True",
+      "passed": true,
+      "measurements": {
+        "clearance": 22,
+        "nativeGutter": 0,
+        "scrollable": true,
+        "scrollLeft": 0,
+        "keyHit": true,
+        "hitId": "wfKey",
+        "point": {
+          "x": 332,
+          "y": 244.65625
+        },
+        "bodyHeight": 407.765625
+      }
+    }
+  ]
+}

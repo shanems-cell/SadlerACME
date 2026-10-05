@@ -1,0 +1,13 @@
+package="sadleracme"
+version="1.0.0-1"
+displayname="SadlerACME"
+description="Cloudflare DNS-01 certificate manager for Synology DSM: Let's Encrypt wildcard and multi-domain certificates, automatic renewal and local DSM deployment. Cloudflare DNS is required. Public beta."
+maintainer="Shane Sadler"
+arch="x86_64"
+os_min_ver="7.0-40000"
+ctl_stop="yes"
+thirdparty="yes"
+dsmuidir="ui"
+dsmappname="SYNO.SDS.SadlerACME.Application"
+
+beta="yes"

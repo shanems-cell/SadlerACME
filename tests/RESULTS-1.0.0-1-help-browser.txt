@@ -1,0 +1,1 @@
+Six installed-help rendered layout cases passed.

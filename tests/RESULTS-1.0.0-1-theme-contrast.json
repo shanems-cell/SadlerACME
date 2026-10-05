@@ -1,0 +1,310 @@
+[
+  {
+    "theme": "dark",
+    "foreground": "text",
+    "background": "bg",
+    "ratio": 15.099583705049042,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "text",
+    "background": "surface",
+    "ratio": 14.461582771032447,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "muted",
+    "background": "surface",
+    "ratio": 8.30682357571581,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "label",
+    "background": "surface",
+    "ratio": 10.096289147119593,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "placeholder",
+    "background": "field-bg",
+    "ratio": 7.113044802460109,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "text",
+    "background": "chrome",
+    "ratio": 11.278376780366502,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "button-text",
+    "background": "accent",
+    "ratio": 5.107001098536978,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "button-text",
+    "background": "accent2",
+    "ratio": 4.584915687851192,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "button-text",
+    "background": "warn-button-bg",
+    "ratio": 6.686030389943268,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "button-text",
+    "background": "warn-button-hover",
+    "ratio": 5.149761670612811,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "nav-selected-text",
+    "background": "selected",
+    "ratio": 10.424737348630336,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "status-error-text",
+    "background": "surface2",
+    "ratio": 8.261349029191651,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "status-success-text",
+    "background": "surface2",
+    "ratio": 9.82544669646556,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "warning-text",
+    "background": "inline-bg",
+    "ratio": 10.047204248655717,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "note-text",
+    "background": "note-bg",
+    "ratio": 10.104290923848446,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "removal-text",
+    "background": "removal-bg",
+    "ratio": 9.798722687540545,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "card-heading-text",
+    "background": "surface3",
+    "ratio": 8.868401986560043,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "log-text",
+    "background": "log-bg",
+    "ratio": 13.47655125631679,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "good",
+    "background": "badge-success-bg",
+    "ratio": 7.028664996742779,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "bad",
+    "background": "badge-error-bg",
+    "ratio": 6.513519308285072,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "badge-run-text",
+    "background": "badge-run-bg",
+    "ratio": 8.183217411657536,
+    "passed": true
+  },
+  {
+    "theme": "dark",
+    "foreground": "badge-queue-text",
+    "background": "badge-queue-bg",
+    "ratio": 8.299950950148387,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "text",
+    "background": "bg",
+    "ratio": 11.23107665277826,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "text",
+    "background": "surface",
+    "ratio": 11.948841481040667,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "muted",
+    "background": "surface",
+    "ratio": 5.9823941996220995,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "label",
+    "background": "surface",
+    "ratio": 8.972975679968577,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "placeholder",
+    "background": "field-bg",
+    "ratio": 4.715523107947309,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "text",
+    "background": "chrome",
+    "ratio": 10.415748436112745,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "button-text",
+    "background": "accent",
+    "ratio": 5.296544594439242,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "button-text",
+    "background": "accent2",
+    "ratio": 6.831004765501725,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "button-text",
+    "background": "warn-button-bg",
+    "ratio": 5.717393149907349,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "button-text",
+    "background": "warn-button-hover",
+    "ratio": 7.681183580252551,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "nav-selected-text",
+    "background": "selected",
+    "ratio": 7.066594280495362,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "status-error-text",
+    "background": "surface2",
+    "ratio": 6.896766843756296,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "status-success-text",
+    "background": "surface2",
+    "ratio": 6.7437407024783385,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "warning-text",
+    "background": "inline-bg",
+    "ratio": 6.3722899418955805,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "note-text",
+    "background": "note-bg",
+    "ratio": 6.656163908192643,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "removal-text",
+    "background": "removal-bg",
+    "ratio": 6.656163908192643,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "card-heading-text",
+    "background": "surface3",
+    "ratio": 6.7058346730971765,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "log-text",
+    "background": "log-bg",
+    "ratio": 11.962583218593402,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "good",
+    "background": "badge-success-bg",
+    "ratio": 5.863031857664297,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "bad",
+    "background": "badge-error-bg",
+    "ratio": 6.061801508113335,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "badge-run-text",
+    "background": "badge-run-bg",
+    "ratio": 6.182272424654783,
+    "passed": true
+  },
+  {
+    "theme": "light",
+    "foreground": "badge-queue-text",
+    "background": "badge-queue-bg",
+    "ratio": 6.539053166936999,
+    "passed": true
+  }
+]

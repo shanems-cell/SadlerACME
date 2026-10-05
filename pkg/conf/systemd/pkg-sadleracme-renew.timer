@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule SadlerACME certificate renewal checks
+
+[Timer]
+OnActiveSec=2min
+OnUnitActiveSec=6h
+AccuracySec=1min
+Unit=pkg-sadleracme-renew.service
+
+[Install]
+WantedBy=timers.target

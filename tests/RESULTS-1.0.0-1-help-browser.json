@@ -1,0 +1,66 @@
+{
+  "scope": "Rendered installed HTML at wide and narrow viewports with network blocked; not native DSM browser navigation",
+  "passed": true,
+  "cases": [
+    {
+      "guide": "QUICKSTART",
+      "viewport": [
+        1100,
+        850
+      ],
+      "no_horizontal_overflow": true,
+      "current_version_banner": true,
+      "last_content_reachable": true
+    },
+    {
+      "guide": "QUICKSTART",
+      "viewport": [
+        390,
+        780
+      ],
+      "no_horizontal_overflow": true,
+      "current_version_banner": true,
+      "last_content_reachable": true
+    },
+    {
+      "guide": "WORKFLOW",
+      "viewport": [
+        1100,
+        850
+      ],
+      "no_horizontal_overflow": true,
+      "current_version_banner": true,
+      "last_content_reachable": true
+    },
+    {
+      "guide": "WORKFLOW",
+      "viewport": [
+        390,
+        780
+      ],
+      "no_horizontal_overflow": true,
+      "current_version_banner": true,
+      "last_content_reachable": true
+    },
+    {
+      "guide": "RECOVERY",
+      "viewport": [
+        1100,
+        850
+      ],
+      "no_horizontal_overflow": true,
+      "current_version_banner": true,
+      "last_content_reachable": true
+    },
+    {
+      "guide": "RECOVERY",
+      "viewport": [
+        390,
+        780
+      ],
+      "no_horizontal_overflow": true,
+      "current_version_banner": true,
+      "last_content_reachable": true
+    }
+  ]
+}

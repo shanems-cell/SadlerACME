@@ -1,0 +1,17 @@
+# SadlerACME build output
+dist/
+*.spk
+
+# Python temporary files
+__pycache__/
+*.py[cod]
+
+# Operating-system/editor clutter
+.DS_Store
+Thumbs.db
+*~
+*.swp
+
+# Synology metadata
+@eaDir/
+**/@eaDir/

@@ -1,0 +1,116 @@
+[
+  {
+    "suite": "regression",
+    "exit_code": 0,
+    "elapsed_seconds": 39.0,
+    "transcript": "RESULTS-1.0.0-1-regression.txt"
+  },
+  {
+    "suite": "workflow-api",
+    "exit_code": 0,
+    "elapsed_seconds": 12.12,
+    "transcript": "RESULTS-1.0.0-1-workflow-api.txt"
+  },
+  {
+    "suite": "scheduler-bridge",
+    "exit_code": 0,
+    "elapsed_seconds": 4.15,
+    "transcript": "RESULTS-1.0.0-1-scheduler-bridge.txt"
+  },
+  {
+    "suite": "renewal-label",
+    "exit_code": 0,
+    "elapsed_seconds": 23.15,
+    "transcript": "RESULTS-1.0.0-1-renewal-label.txt"
+  },
+  {
+    "suite": "timer-status",
+    "exit_code": 0,
+    "elapsed_seconds": 2.13,
+    "transcript": "RESULTS-1.0.0-1-timer-status.txt"
+  },
+  {
+    "suite": "scheduled-renewal",
+    "exit_code": 0,
+    "elapsed_seconds": 10.2,
+    "transcript": "RESULTS-1.0.0-1-scheduled-renewal.txt"
+  },
+  {
+    "suite": "wizard-worker",
+    "exit_code": 0,
+    "elapsed_seconds": 14.18,
+    "transcript": "RESULTS-1.0.0-1-wizard-worker.txt"
+  },
+  {
+    "suite": "layout-common",
+    "exit_code": 0,
+    "elapsed_seconds": 0.82,
+    "transcript": "RESULTS-1.0.0-1-layout-common.txt"
+  },
+  {
+    "suite": "css-maintenance",
+    "exit_code": 0,
+    "elapsed_seconds": 0.82,
+    "transcript": "RESULTS-1.0.0-1-css-maintenance.txt"
+  },
+  {
+    "suite": "onboarding-status",
+    "exit_code": 0,
+    "elapsed_seconds": 2.68,
+    "transcript": "RESULTS-1.0.0-1-onboarding-status.txt"
+  },
+  {
+    "suite": "launcher-size",
+    "exit_code": 0,
+    "elapsed_seconds": 0.06,
+    "transcript": "RESULTS-1.0.0-1-launcher-size.txt"
+  },
+  {
+    "suite": "launcher-placement",
+    "exit_code": 0,
+    "elapsed_seconds": 0.11,
+    "transcript": "RESULTS-1.0.0-1-launcher-placement.txt"
+  },
+  {
+    "suite": "theme-ui",
+    "exit_code": 0,
+    "elapsed_seconds": 0.06,
+    "transcript": "RESULTS-1.0.0-1-theme-ui.txt"
+  },
+  {
+    "suite": "temporary-worker-ui",
+    "exit_code": 0,
+    "elapsed_seconds": 0.37,
+    "transcript": "RESULTS-1.0.0-1-temporary-worker-ui.txt"
+  },
+  {
+    "suite": "workflow-ui",
+    "exit_code": 0,
+    "elapsed_seconds": 0.62,
+    "transcript": "RESULTS-1.0.0-1-workflow-ui.txt"
+  },
+  {
+    "suite": "theme-contrast",
+    "exit_code": 0,
+    "elapsed_seconds": 0.87,
+    "transcript": "RESULTS-1.0.0-1-theme-contrast.txt"
+  },
+  {
+    "suite": "syntax",
+    "exit_code": 0,
+    "elapsed_seconds": 1.37,
+    "transcript": "RESULTS-1.0.0-1-syntax.txt"
+  },
+  {
+    "suite": "browser",
+    "exit_code": 0,
+    "elapsed_seconds": 48.07,
+    "transcript": "RESULTS-1.0.0-1-browser.txt"
+  },
+  {
+    "suite": "clearance",
+    "exit_code": 0,
+    "elapsed_seconds": 55.46,
+    "transcript": "RESULTS-1.0.0-1-clearance.txt"
+  }
+]

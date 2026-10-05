@@ -1,0 +1,24 @@
+test_busybox_explicit_input_format_fallback (__main__.TimerStatus.test_busybox_explicit_input_format_fallback) ... ok
+test_deadline_available_before_any_scheduled_run (__main__.TimerStatus.test_deadline_available_before_any_scheduled_run) ... ok
+test_disabled_setting_caches_deadline_for_enable_without_a_timer_change (__main__.TimerStatus.test_disabled_setting_caches_deadline_for_enable_without_a_timer_change) ... ok
+test_duplicate_matching_rows_are_rejected (__main__.TimerStatus.test_duplicate_matching_rows_are_rejected) ... ok
+test_failed_date_conversion_is_nonfatal (__main__.TimerStatus.test_failed_date_conversion_is_nonfatal) ... ok
+test_failed_query_clears_deadline_even_if_stdout_looks_valid (__main__.TimerStatus.test_failed_query_clears_deadline_even_if_stdout_looks_valid) ... ok
+test_inactive_or_unknown_timer_clears_without_query (__main__.TimerStatus.test_inactive_or_unknown_timer_clears_without_query) ... ok
+test_invalid_date_or_wrong_weekday_is_rejected (__main__.TimerStatus.test_invalid_date_or_wrong_weekday_is_rejected) ... ok
+test_missing_or_unavailable_next_clears_old_deadline (__main__.TimerStatus.test_missing_or_unavailable_next_clears_old_deadline) ... ok
+test_non_numeric_date_output_is_nonfatal (__main__.TimerStatus.test_non_numeric_date_output_is_nonfatal) ... ok
+test_normalized_date_mismatch_or_oversized_epoch_is_rejected (__main__.TimerStatus.test_normalized_date_mismatch_or_oversized_epoch_is_rejected) ... ok
+test_past_due_deadline_is_not_replaced_by_an_estimate (__main__.TimerStatus.test_past_due_deadline_is_not_replaced_by_an_estimate) ... ok
+test_relative_columns_and_other_units_do_not_change_selection (__main__.TimerStatus.test_relative_columns_and_other_units_do_not_change_selection) ... ok
+test_stopped_package_clears_without_query (__main__.TimerStatus.test_stopped_package_clears_without_query) ... ok
+test_temporary_setup_pending_apply_or_uninstall_clears_without_query (__main__.TimerStatus.test_temporary_setup_pending_apply_or_uninstall_clears_without_query) ... ok
+test_unrecognised_timestamp_format_is_rejected (__main__.TimerStatus.test_unrecognised_timestamp_format_is_rejected) ... ok
+test_utc_conversion_is_independent_of_process_timezone (__main__.TimerStatus.test_utc_conversion_is_independent_of_process_timezone) ... ok
+test_valid_and_unavailable_duplicate_is_rejected (__main__.TimerStatus.test_valid_and_unavailable_duplicate_is_rejected) ... ok
+test_wrong_service_or_truncated_unit_does_not_match (__main__.TimerStatus.test_wrong_service_or_truncated_unit_does_not_match) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 1.243s
+
+OK

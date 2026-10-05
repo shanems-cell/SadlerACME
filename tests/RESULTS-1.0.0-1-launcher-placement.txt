@@ -1,0 +1,39 @@
+PASS Fresh opening has no competing seeded local or page coordinates
+PASS Fresh native render movement is not mistaken for restored geometry
+PASS Native render preference writes do not suppress fresh centring
+PASS Native page-coordinate record is restored without recentering
+PASS Move resize close reopen preserves native store geometry
+PASS Existing remembered centre is not treated as forced new centring
+PASS Window-manager page position in fromRestore config is honoured
+PASS autoRestoreSizePos false does not consult stored position
+PASS autoStart restores native record despite fromRestore
+PASS Native page pair wins over stale caller-local coordinates
+PASS Explicit page pair without stored record is retained
+PASS Explicit local coordinates without page pair are retained
+PASS Local coordinates translate correctly in an offset desktop
+PASS Native page coordinates do not acquire a container offset
+PASS Missing and size-only preferences still centre
+PASS Partial or invalid saved page pairs cannot suppress centring
+PASS Invalid caller coordinates are removed without NaN placement
+PASS Zero-valued native page coordinates are recognised then bounded
+PASS Negative saved page coordinates are bounded not centred
+PASS Offscreen native position is clamped without resetting to centre
+PASS Fresh measured desktop rectangle drives centring
+PASS Measured small desktop shrinks an oversized restored window
+PASS Resizing callbacks cannot overwrite snapshotted restored target
+PASS Body and invalid container rectangles use conservative fallback
+PASS Tiny desktop bounds remain finite and contained
+PASS No second placement after show or subsequent drag
+PASS Maximised and minimised windows get no custom placement
+PASS Saved maximised state is left to native window handling
+PASS Standalone main window gets no custom placement
+PASS Unrelated Ext state cannot suppress native fresh centring
+PASS Position getter failure cannot crash a fresh opening
+PASS Local-setter fallback translates the desired page point
+PASS Native snapshot is immutable when live settings are replaced
+PASS Window hook does not mutate caller local/page input object
+PASS Native initial repositioning cannot be mistaken for a restored user preference
+PASS A stale page-position getter cannot replace native restored geometry
+PASS Saved page point is preserved even if getters throw
+PASS Saved local-coordinate variant is retained when no page pair exists
+38/38 placement cases passed (handwritten native contract model; NOT a live DSM run).

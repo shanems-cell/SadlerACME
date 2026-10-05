@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+umask 077
+ETC="${SYNOPKG_PKGETC:-/var/packages/sadleracme/etc}"
+VAR="${SYNOPKG_PKGVAR:-/var/packages/sadleracme/var}"
+mkdir -p "$ETC" "$VAR"
+# Cancel the obsolete single-slot request from earlier releases.
+rm -f "$VAR/queue/request"
+# Legacy settings are converted atomically on the first authenticated UI load.
+# Root performs PEM migration and metadata refresh after bootstrap.
+exit 0

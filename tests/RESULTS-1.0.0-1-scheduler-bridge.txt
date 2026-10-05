@@ -1,0 +1,43 @@
+test_all_inventory_pages_checked_for_duplicates (__main__.Bridge.test_all_inventory_pages_checked_for_duplicates) ... ok
+test_already_absent_cleanup_does_not_request_password (__main__.Bridge.test_already_absent_cleanup_does_not_request_password) ... ok
+test_cleanup_never_deletes_unrecognised_command (__main__.Bridge.test_cleanup_never_deletes_unrecognised_command) ... ok
+test_cleanup_setup_never_deletes_permanent (__main__.Bridge.test_cleanup_setup_never_deletes_permanent) ... ok
+test_concurrent_duplicate_request_cannot_clear_owner_lock (__main__.Bridge.test_concurrent_duplicate_request_cannot_clear_owner_lock) ... ok
+test_create_acknowledgement_without_task_does_not_run (__main__.Bridge.test_create_acknowledgement_without_task_does_not_run) ... ok
+test_disabled_permanent_requires_explicit_correction (__main__.Bridge.test_disabled_permanent_requires_explicit_correction) ... ok
+test_duplicate_name_fails_closed (__main__.Bridge.test_duplicate_name_fails_closed) ... ok
+test_enabled_or_unexpected_temporary_is_not_run (__main__.Bridge.test_enabled_or_unexpected_temporary_is_not_run) ... ok
+test_ensure_corrects_known_permanent_with_fresh_approval (__main__.Bridge.test_ensure_corrects_known_permanent_with_fresh_approval) ... ok
+test_ensure_creates_only_after_verified_absence (__main__.Bridge.test_ensure_creates_only_after_verified_absence) ... ok
+test_event_detail_missing_fields_do_not_use_display_action_or_summary_owner (__main__.Bridge.test_event_detail_missing_fields_do_not_use_display_action_or_summary_owner) ... ok
+test_event_duplicate_names_stop_before_detail_or_mutation (__main__.Bridge.test_event_duplicate_names_stop_before_detail_or_mutation) ... ok
+test_event_get_failures_are_actionable_and_do_not_mutate (__main__.Bridge.test_event_get_failures_are_actionable_and_do_not_mutate) ... ok
+test_event_inventory_is_rechecked_after_password_confirmation (__main__.Bridge.test_event_inventory_is_rechecked_after_password_confirmation) ... ok
+test_event_summary_unknown_type_does_not_guess_real_owner (__main__.Bridge.test_event_summary_unknown_type_does_not_guess_real_owner) ... ok
+test_event_task_cleanup_and_remove_verify_absence (__main__.Bridge.test_event_task_cleanup_and_remove_verify_absence) ... ok
+test_event_temporary_create_verifies_detail_before_run (__main__.Bridge.test_event_temporary_create_verifies_detail_before_run) ... ok
+test_event_temporary_reuse_and_permanent_ensure (__main__.Bridge.test_event_temporary_reuse_and_permanent_ensure) ... ok
+test_event_unknown_or_incomplete_detail_never_authorises_a_change (__main__.Bridge.test_event_unknown_or_incomplete_detail_never_authorises_a_change) ... ok
+test_event_unrecognised_values_not_run_or_deleted (__main__.Bridge.test_event_unrecognised_values_not_run_or_deleted) ... ok
+test_existing_disabled_temporary_is_reused_without_password (__main__.Bridge.test_existing_disabled_temporary_is_reused_without_password) ... ok
+test_existing_permanent_is_reused_without_password (__main__.Bridge.test_existing_permanent_is_reused_without_password) ... ok
+test_failed_or_empty_password_approval_never_mutates (__main__.Bridge.test_failed_or_empty_password_approval_never_mutates) ... ok
+test_foreign_origin_and_foreign_frame_are_ignored (__main__.Bridge.test_foreign_origin_and_foreign_frame_are_ignored) ... ok
+test_legacy_manual_actions_keep_tested_api_even_with_unknown_inventory (__main__.Bridge.test_legacy_manual_actions_keep_tested_api_even_with_unknown_inventory) ... ok
+test_missing_task_prompts_before_auth_or_mutation (__main__.Bridge.test_missing_task_prompts_before_auth_or_mutation) ... ok
+test_observed_event_detail_accepts_desktop_unwrapped_data (__main__.Bridge.test_observed_event_detail_accepts_desktop_unwrapped_data) ... ok
+test_observed_event_summary_reuses_bootstrap_without_password_or_mutation (__main__.Bridge.test_observed_event_summary_reuses_bootstrap_without_password_or_mutation) ... ok
+test_regular_summary_still_uses_original_detail_contract (__main__.Bridge.test_regular_summary_still_uses_original_detail_contract) ... ok
+test_remove_all_requires_verified_absence_after_deletion (__main__.Bridge.test_remove_all_requires_verified_absence_after_deletion) ... ok
+test_run_failure_reports_saved_task_for_cleanup (__main__.Bridge.test_run_failure_reports_saved_task_for_cleanup) ... ok
+test_second_deletion_can_request_fresh_approval_without_recreating_first (__main__.Bridge.test_second_deletion_can_request_fresh_approval_without_recreating_first) ... ok
+test_summary_inventory_fetches_full_details (__main__.Bridge.test_summary_inventory_fetches_full_details) ... ok
+test_task_change_during_password_confirmation_blocks_commit (__main__.Bridge.test_task_change_during_password_confirmation_blocks_commit) ... ok
+test_temporary_setup_is_disabled_and_verified_before_running (__main__.Bridge.test_temporary_setup_is_disabled_and_verified_before_running) ... ok
+test_unknown_inventory_and_details_block_new_modes (__main__.Bridge.test_unknown_inventory_and_details_block_new_modes) ... ok
+test_unknown_mode_is_ignored_and_secret_cleared (__main__.Bridge.test_unknown_mode_is_ignored_and_secret_cleared) ... ok
+
+----------------------------------------------------------------------
+Ran 38 tests in 3.396s
+
+OK

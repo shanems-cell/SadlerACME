@@ -1,0 +1,1182 @@
+#!/bin/sh
+set -eu
+umask 077
+
+PKG="sadleracme"
+PATH=/usr/syno/bin:/usr/syno/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+[ "$(id -u)" = "0" ] || { echo "SadlerACME worker requires root" >&2; exit 1; }
+BASE="/var/packages/$PKG"
+ETC="$BASE/etc"
+VAR="$BASE/var"
+PROTECTED="/usr/local/etc/sadleracme"
+ROOT_STATE="$PROTECTED/private"
+ENGINE="$ROOT_STATE/engine"
+PROD_CFG="$ROOT_STATE/prod-config"
+PROD_CERTS="$ROOT_STATE/prod-certs"
+STAGE_CFG="$ROOT_STATE/stage-config"
+STAGE_CERTS="$ROOT_STATE/stage-certs"
+LIVE="$ROOT_STATE/live"
+INBOX="$PROTECTED/inbox"
+RUN_MARKER="$VAR/package.running"
+STATUS_DIR="$PROTECTED/status"
+LOG="$ROOT_STATE/sadleracme.log"
+LOCK="$ROOT_STATE/worker.lock"
+AUTO_STAMP="$ROOT_STATE/last_auto_check"
+APPLIED_SIG="$ROOT_STATE/applied_signature"
+ACME_VERSION="3.1.5"
+LE_PROD="https://acme-v02.api.letsencrypt.org/directory"
+LE_STAGE="https://acme-staging-v02.api.letsencrypt.org/directory"
+SCHED_BOOT_NAME="SadlerACME Bootstrap"
+SCHED_BOOT_COMMAND="/bin/systemctl start pkg-sadleracme-bootstrap.service"
+
+# Root services execute a hash-verified snapshot (see build-spk.sh). Never
+# source code or ACME configuration from the package-writable target/var.
+JQ=$(command -v jq) || { echo "jq is required" >&2; exit 1; }
+OPENSSL=$(command -v openssl) || exit 1
+CONFIG=""
+CF_TOKEN=""
+KEY_TYPE=""
+ACTIVE_JOB=""
+ERROR_REPORTED=0
+WORK=""
+
+
+now_iso() { date '+%Y-%m-%d %H:%M:%S'; }
+log() {
+  printf '%s %s\n' "$(now_iso)" "$*" >> "$LOG"
+  publish_log
+}
+publish_log() {
+  # Raw command output stays private. Never publish PEM blocks or credentials.
+  [ -f "$LOG" ] || return 0
+  tail -n 350 "$LOG" | CF_REDACT="$CF_TOKEN" awk -v tokens="$ROOT_STATE/log-redactions" '
+    BEGIN {token=ENVIRON["CF_REDACT"]; while ((getline t < tokens)>0) secrets[t]=1; if(token!="") secrets[token]=1}
+    /-----BEGIN / {pem=1; print "[PEM data omitted]"; next}
+    /-----END / {pem=0; next}
+    !pem {
+      gsub(/\r/, "")
+      for (token in secrets) if (token!="") while ((n=index($0,token))>0) $0=substr($0,1,n-1) "[redacted]" substr($0,n+length(token))
+      if ($0 ~ /^[A-Za-z0-9+\/=]{32,}$/) {print "[encoded data omitted]"; next}
+      if (tolower($0) ~ /(authorization:|cf_token=|cf_key=|api.token[=:]|private.key[=:])/) print "[credential-bearing diagnostic omitted]";
+      else print
+    }' > "$STATUS_DIR/log.tmp"
+  chmod 0644 "$STATUS_DIR/log.tmp"
+  mv -f "$STATUS_DIR/log.tmp" "$STATUS_DIR/log"
+}
+write_public() {
+  # Only root can write this directory; package-owned parents are never used.
+  printf '%s\n' "$2" > "$STATUS_DIR/$1.tmp" || return 1
+  chmod 0644 "$STATUS_DIR/$1.tmp" || return 1
+  mv -f "$STATUS_DIR/$1.tmp" "$STATUS_DIR/$1"
+}
+write_status() {
+  state="$1"; msg="$2"; action="${3:-}"
+  write_public state "$state"
+  write_public message "$msg"
+  write_public last_run "$(now_iso)"
+  write_public last_action "$action"
+}
+fail() {
+  msg="$1"; action="${2:-}"
+  log "ERROR $msg"
+  write_status "error" "$msg" "$action"
+  ERROR_REPORTED=1
+  exit 1
+}
+read_setting() {
+  [ -n "$CONFIG" ] && [ -s "$CONFIG" ] || return 0
+  "$JQ" -r --arg key "$1" '.[$key] // "" | if type=="array" then join("\n") else tostring end' "$CONFIG"
+}
+require_cmd() {
+  command -v "$1" >/dev/null 2>&1 || fail "Required command not found: $1" "preflight"
+}
+require_privileged_tools() {
+  # These DSM helpers may be intentionally inaccessible to the package user.
+  for privileged_cmd in /usr/syno/bin/synowebapi /usr/syno/bin/synow3tool; do
+    [ -x "$privileged_cmd" ] || fail "Required DSM component is unavailable to root: $privileged_cmd" preflight
+  done
+}
+validate_domain() {
+  printf '%s' "$1" | grep -Eq '^(\*\.)?([A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,}$'
+}
+load_config() {
+  EMAIL=$(read_setting email)
+  KEY_TYPE=$(read_setting key_type)
+  CERT_DESC=$(read_setting cert_desc)
+  CF_TOKEN=$(read_setting cf_token)
+  DEFAULT_ON_CREATE=$(read_setting default_on_create)
+  AUTO_RENEW=$(read_setting auto_renew)
+  DNS_SLEEP=$(read_setting dns_sleep); DNS_SLEEP=${DNS_SLEEP:-60}
+  "$JQ" -e 'type=="object" and (.domains|type=="array" and length>0 and length<=100) and
+    ([.email,.cert_desc,.cf_token,.key_type]|all(type=="string")) and
+    (.email|test("\\A[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\z")) and
+    (.cert_desc|length>0 and length<=80) and
+    (.cf_token|test("^[A-Za-z0-9_-]{20,256}$")) and
+    (.domains|all(type=="string" and length<=253)) and
+    (.default_on_create=="0" or .default_on_create=="1") and
+    (.auto_renew=="0" or .auto_renew=="1")' "$CONFIG" >/dev/null || fail "Invalid or incomplete configuration; save Settings first" preflight
+  if [ -f "$ROOT_STATE/log-redactions" ] && CF_REDACT="$CF_TOKEN" awk '$0==ENVIRON["CF_REDACT"] {found=1} END {exit !found}' "$ROOT_STATE/log-redactions"; then :; else
+    printf '%s\n' "$CF_TOKEN" >> "$ROOT_STATE/log-redactions"
+  fi
+  case "$DNS_SLEEP" in *[!0-9]*|'') fail "Invalid DNS propagation wait" preflight;; esac
+  [ "$DNS_SLEEP" -ge 30 ] && [ "$DNS_SLEEP" -le 600 ] || fail "DNS wait must be 30–600 seconds" preflight
+  "$JQ" -r '.domains[]' "$CONFIG" > "$WORK/domains"
+  cp "$CONFIG" "$ROOT_STATE/last-settings.json.new" && mv -f "$ROOT_STATE/last-settings.json.new" "$ROOT_STATE/last-settings.json" || fail "Cannot save protected configuration snapshot" preflight
+  PRIMARY=""
+  while IFS= read -r d; do
+    validate_domain "$d" || fail "Invalid domain in configuration" preflight
+    [ -n "$PRIMARY" ] || PRIMARY="$d"
+  done < "$WORK/domains"
+  case "$KEY_TYPE" in
+    ec-256|ec-384) ACME_KEY="$KEY_TYPE"; ECC=1 ;;
+    rsa-2048) ACME_KEY=2048; ECC=0 ;;
+    rsa-4096) ACME_KEY=4096; ECC=0 ;;
+    *) fail "Unsupported key type" preflight ;;
+  esac
+}
+config_signature() {
+  "$JQ" -cS '{domains,key_type}' "$CONFIG" | sha256sum | awk '{print $1}'
+}
+ensure_engine() {
+  require_cmd curl
+  mkdir -p "$ENGINE/dnsapi"
+  # Pinned, offline payload. Copy first, hash the private copy, then execute.
+  for spec in 'acme.sh:812c228e9c6374b99c8bd615ca8172b6dd483bd93a5ce862f58531e461d04be8' 'dnsapi/dns_cf.sh:9628ee8238cb3f9cfa1b1a985c0e9593436a3e4f8a9d65a6f775b981be9e76c8'; do
+    ef=${spec%%:*}; expected=${spec#*:}
+    if [ ! -f "$ENGINE/$ef" ] || [ "$(sha_file "$ENGINE/$ef")" != "$expected" ]; then
+      head -c 400000 "$BASE/target/share/acme.sh-$ACME_VERSION/$ef" > "$ENGINE/$ef.new" || fail "Bundled ACME engine is missing" bootstrap
+      [ "$(sha_file "$ENGINE/$ef.new")" = "$expected" ] || { rm -f "$ENGINE/$ef.new"; fail "Bundled ACME integrity check failed" bootstrap; }
+      chmod 0700 "$ENGINE/$ef.new"
+      mv -f "$ENGINE/$ef.new" "$ENGINE/$ef"
+    fi
+  done
+}
+acme_invoke() (
+  # Keep the pinned upstream engine unchanged. Running it in this subshell
+  # lets shell functions remove secrets BEFORE an external process is spawned.
+  set +e
+  set +u
+  trap - EXIT HUP INT TERM
+  curl() (
+    header_config=$(mktemp "$WORK/curl.XXXXXXXX") || exit 1
+    trap 'rm -f "$header_config"' EXIT
+    cr=$(printf '\r')
+    left=$#
+    while [ "$left" -gt 0 ]; do
+      arg=$1; shift; left=$((left - 1))
+      case "$arg" in
+        -H|--header)
+          [ "$left" -gt 0 ] || exit 1
+          # curl config quoting. Upstream headers here are single-line values.
+          case "$1" in *'
+'*|*"$cr"*) exit 1;; esac
+          printf 'header = "' >> "$header_config"
+          printf '%s' "$1" | command sed 's/\\/\\\\/g;s/"/\\"/g' >> "$header_config"
+          printf '"\n' >> "$header_config"
+          shift; left=$((left - 1))
+          ;;
+        *) set -- "$@" "$arg";;
+      esac
+    done
+    command curl -q --config "$header_config" "$@"
+  )
+  sed() (
+    # dns_cf persists the token via acme.sh's _setopt. Its sed expression can
+    # contain the token; pass that expression through a private -f file too.
+    if [ -z "${CF_Token:-}" ]; then command sed "$@"; exit $?; fi
+    sed_scripts=$(mktemp -d "$WORK/sed.XXXXXXXX") || exit 1
+    trap 'rm -rf "$sed_scripts"' EXIT
+    left=$#; index=0
+    while [ "$left" -gt 0 ]; do
+      arg=$1; shift; left=$((left - 1))
+      case "$arg" in
+        -e)
+          [ "$left" -gt 0 ] || exit 1
+          arg=$1; shift; left=$((left - 1))
+          index=$((index + 1))
+          printf '%s\n' "$arg" > "$sed_scripts/$index"
+          set -- "$@" -f "$sed_scripts/$index"
+          ;;
+        *"$CF_Token"*)
+          index=$((index + 1))
+          printf '%s\n' "$arg" > "$sed_scripts/$index"
+          set -- "$@" -f "$sed_scripts/$index"
+          ;;
+        *) set -- "$@" "$arg";;
+      esac
+    done
+    command sed "$@"
+  )
+  . "$ENGINE/acme.sh"
+)
+register_account() {
+  mkdir -p "$1" "$2"
+  if acme_invoke --home "$ENGINE" --config-home "$1" --cert-home "$2" \
+    --server "$3" --register-account -m "$EMAIL" > "$WORK/account-output" 2>&1; then rc=0; else rc=$?; fi
+  append_acme_output "$WORK/account-output"
+  [ "$rc" -eq 0 ] || fail "ACME account registration failed (exit $rc)" account
+}
+append_acme_output() {
+  [ -f "$1" ] || return 0
+  cat "$1" >> "$LOG"
+  rm -f "$1"
+  publish_log
+}
+issue_cert() {
+  cfg="$1"; certs="$2"; server="$3"; force="$4"
+  [ -f "$RUN_MARKER" ] || fail "Package is stopping; issuance was not started" issue
+  set --
+  while IFS= read -r d; do set -- "$@" -d "$d"; done < "$WORK/domains"
+  [ "$force" = "1" ] && set -- "$@" --force
+  log "Starting ACME DNS-01 operation for the active configuration"
+  write_public message "Waiting for Cloudflare DNS validation and certificate issuance. This can take a couple of minutes; please wait."
+  if CF_Token="$CF_TOKEN" acme_invoke --home "$ENGINE" --config-home "$cfg" --cert-home "$certs" \
+    --server "$server" --issue --dns dns_cf --dnssleep "$DNS_SLEEP" --keylength "$ACME_KEY" "$@" > "$WORK/acme-output" 2>&1; then
+    ISSUE_RC=0
+  else ISSUE_RC=$?; fi
+  append_acme_output "$WORK/acme-output"
+  case "$ISSUE_RC" in
+    0) ;;
+    2) [ "$force" = "0" ] || fail "Forced ACME issuance was unexpectedly skipped" issue ;;
+    *) fail "ACME issuance failed (exit $ISSUE_RC). The previous certificate was retained." issue ;;
+  esac
+  [ "$ECC" = 1 ] && ISSUED_DIR="$certs/${PRIMARY}_ecc" || ISSUED_DIR="$certs/$PRIMARY"
+  # A skip is acceptable only when the stored certificate passes full checks.
+  candidate="$WORK/candidate"
+  mkdir -p "$candidate"
+  cp "$ISSUED_DIR/$PRIMARY.key" "$candidate/key.pem" &&
+  cp "$ISSUED_DIR/$PRIMARY.cer" "$candidate/cert.pem" &&
+  cp "$ISSUED_DIR/ca.cer" "$candidate/ca.pem" &&
+  cp "$ISSUED_DIR/fullchain.cer" "$candidate/fullchain.pem" || fail "ACME did not produce a complete certificate set" issue
+  trust=production; [ "$server" != "$LE_STAGE" ] || trust=staging
+  validate_certificate "$candidate" "$trust" || fail "ACME certificate is invalid, expired, or does not match the configured names/key type. Use Renew Early after checking Settings." issue
+}
+install_live_files() {
+  if [ -s "$LIVE/cert.pem" ] && cmp -s "$WORK/candidate/fullchain.pem" "$LIVE/fullchain.pem" && cmp -s "$WORK/candidate/key.pem" "$LIVE/key.pem"; then
+    refresh_cert_metadata
+    return 0
+  fi
+  # Publish one generation atomically; acme.sh never writes deployment files.
+  generation=$(mktemp -d "$ROOT_STATE/live-gen.XXXXXXXX") || fail "Cannot allocate certificate generation" install
+  cp "$WORK/candidate/"*.pem "$generation/" || fail "Cannot copy certificate generation" install
+  chmod 0600 "$generation/"*.pem
+  ln -s "${generation##*/}" "$ROOT_STATE/live.next"
+  mv -Tf "$ROOT_STATE/live.next" "$LIVE" || fail "Cannot activate certificate generation" install
+  refresh_cert_metadata
+}
+find_jq() {
+  if command -v jq >/dev/null 2>&1; then command -v jq; return; fi
+  [ -x /bin/jq ] && { printf '%s\n' /bin/jq; return; }
+  [ -x /usr/bin/jq ] && { printf '%s\n' /usr/bin/jq; return; }
+  return 1
+}
+find_openssl() {
+  if command -v openssl >/dev/null 2>&1; then command -v openssl; return; fi
+  for p in /bin/openssl /usr/bin/openssl /usr/syno/bin/openssl; do
+    [ -x "$p" ] && { printf '%s\n' "$p"; return; }
+  done
+  return 1
+}
+date_to_epoch() {
+  v="$1"
+  date -d "$v" +%s 2>/dev/null && return 0
+  date -D '%b %d %H:%M:%S %Y %Z' -d "$v" +%s 2>/dev/null && return 0
+  return 1
+}
+refresh_cert_metadata() {
+  if validate_live_keypair && "$OPENSSL" x509 -in "$LIVE/cert.pem" -checkend 0 -noout >/dev/null 2>&1; then
+    write_public local_cert_available "yes"
+  else
+    write_public local_cert_available "no"
+    for field in cert_subject cert_issuer cert_serial cert_fingerprint cert_not_before cert_not_after cert_sans cert_key_type cert_expiry_epoch cert_days_remaining; do write_public "$field" ""; done
+    return 0
+  fi
+  OPENSSL=$(find_openssl) || { log "OpenSSL not found; certificate dashboard metadata is limited"; return 0; }
+  subject=$($OPENSSL x509 -in "$LIVE/cert.pem" -noout -subject 2>/dev/null | sed 's/^subject= *//')
+  issuer=$($OPENSSL x509 -in "$LIVE/cert.pem" -noout -issuer 2>/dev/null | sed 's/^issuer= *//')
+  serial=$($OPENSSL x509 -in "$LIVE/cert.pem" -noout -serial 2>/dev/null | sed 's/^serial=//')
+  fp=$($OPENSSL x509 -in "$LIVE/cert.pem" -noout -fingerprint -sha256 2>/dev/null | sed 's/^.*=//')
+  nb=$($OPENSSL x509 -in "$LIVE/cert.pem" -noout -startdate 2>/dev/null | sed 's/^notBefore=//')
+  na=$($OPENSSL x509 -in "$LIVE/cert.pem" -noout -enddate 2>/dev/null | sed 's/^notAfter=//')
+  sans=$($OPENSSL x509 -in "$LIVE/cert.pem" -noout -ext subjectAltName 2>/dev/null | sed -n '2,$p' | tr '\n' ' ' | sed 's/[[:space:]][[:space:]]*/ /g;s/^ *//;s/ *$//')
+  write_public cert_subject "$subject"
+  write_public cert_issuer "$issuer"
+  write_public cert_serial "$serial"
+  write_public cert_fingerprint "$fp"
+  write_public cert_not_before "$nb"
+  write_public cert_not_after "$na"
+  write_public cert_sans "$sans"
+  write_public cert_key_type "$(actual_key_type "$LIVE/key.pem")"
+  expiry=""
+  if expiry=$(date_to_epoch "$na"); then
+    now=$(date +%s)
+    remain=$((expiry - now))
+    [ "$remain" -lt 0 ] && days=-1 || days=$((remain / 86400))
+    write_public cert_expiry_epoch "$expiry"
+    write_public cert_days_remaining "$days"
+  else
+    write_public cert_expiry_epoch ""
+    write_public cert_days_remaining "unknown"
+  fi
+}
+cert_fp_normalized() {
+  file="$1"
+  OPENSSL=$(find_openssl) || return 1
+  $OPENSSL x509 -in "$file" -noout -fingerprint -sha256 2>/dev/null | sed 's/^.*=//;s/://g' | tr 'A-F' 'a-f'
+}
+read_status_value() {
+  f="$STATUS_DIR/$1"
+  [ -f "$f" ] && cat "$f" || true
+}
+
+systemd_unit_state() {
+  unit="$1"
+  SYSTEMCTL_STATE=$(command -v systemctl 2>/dev/null || true)
+  [ -n "$SYSTEMCTL_STATE" ] || { printf 'unavailable\n'; return 0; }
+
+  state=$($SYSTEMCTL_STATE show "$unit" -p ActiveState --value 2>/dev/null | head -n 1 || true)
+  if [ -z "$state" ]; then
+    state=$($SYSTEMCTL_STATE is-active "$unit" 2>/dev/null || true)
+  fi
+  if [ -z "$state" ]; then
+    state=$($SYSTEMCTL_STATE status "$unit" 2>/dev/null | awk '/^[[:space:]]*Active:/ {print $2; exit}' || true)
+  fi
+  case "$state" in
+    active|inactive|activating|deactivating|reloading|failed) printf '%s\n' "$state" ;;
+    *) printf 'unknown\n' ;;
+  esac
+}
+
+validate_live_keypair() {
+  validate_pair "$LIVE"
+}
+validate_pair() (
+  vp_dir="$1"
+  [ -s "$vp_dir/cert.pem" ] && [ -s "$vp_dir/key.pem" ] || exit 1
+  vp_tmp=$(mktemp -d "$WORK/pubkeys.XXXXXXXX") || exit 1
+  trap 'rm -rf "$vp_tmp"' EXIT
+  "$OPENSSL" x509 -in "$vp_dir/cert.pem" -pubkey -noout > "$vp_tmp/cert.pub" 2>/dev/null || exit 1
+  "$OPENSSL" pkey -pubin -in "$vp_tmp/cert.pub" -outform DER -out "$vp_tmp/cert.der" 2>/dev/null || exit 1
+  "$OPENSSL" pkey -in "$vp_dir/key.pem" -pubout -outform DER -out "$vp_tmp/key.der" 2>/dev/null || exit 1
+  [ -s "$vp_tmp/key.der" ] && [ -s "$vp_tmp/cert.der" ] && cmp -s "$vp_tmp/key.der" "$vp_tmp/cert.der"
+)
+actual_key_type() {
+  "$OPENSSL" pkey -in "$1" -text_pub -noout 2>/dev/null | awk '
+    /ASN1 OID: prime256v1/ {kind="ec-256"}
+    /ASN1 OID: secp384r1/ {kind="ec-384"}
+    /Public-Key: \(2048 bit\)/ {kind="rsa-2048"}
+    /Public-Key: \(4096 bit\)/ {kind="rsa-4096"}
+    END {print kind}'
+}
+validate_certificate() (
+  vc_dir="$1"
+  validate_pair "$vc_dir" || exit 1
+  "$OPENSSL" x509 -in "$vc_dir/cert.pem" -checkend 0 -noout >/dev/null 2>&1 || exit 1
+  if [ "${2:-production}" = staging ]; then
+    "$OPENSSL" verify -purpose sslserver -partial_chain -trusted "$vc_dir/ca.pem" "$vc_dir/cert.pem" >/dev/null 2>&1 || exit 1
+  else
+    "$OPENSSL" verify -purpose sslserver -untrusted "$vc_dir/ca.pem" "$vc_dir/cert.pem" >/dev/null 2>&1 || exit 1
+  fi
+  [ "$(actual_key_type "$vc_dir/key.pem")" = "$KEY_TYPE" ] || exit 1
+  "$OPENSSL" x509 -in "$vc_dir/cert.pem" -noout -ext subjectAltName 2>/dev/null |
+    tr ',' '\n' | sed -n 's/^[[:space:]]*DNS://p' | tr 'A-Z' 'a-z' | sort -u > "$WORK/actual-sans"
+  sort -u "$WORK/domains" > "$WORK/expected-sans"
+  cmp -s "$WORK/actual-sans" "$WORK/expected-sans" || exit 1
+  cat "$vc_dir/cert.pem" "$vc_dir/ca.pem" > "$WORK/expected-chain"
+  cmp -s "$WORK/expected-chain" "$vc_dir/fullchain.pem"
+)
+
+backup_dsm_target() (
+  target="$1"; backup_root="$2"; idx="$3"; b="$2/$3"
+  safe_certificate_target "$target" || exit 1
+  mkdir -p "$b" || exit 1
+  printf '%s\n' "$target" > "$b/.path" || exit 1
+  for name in privkey.pem cert.pem chain.pem fullchain.pem; do
+    if [ -e "$target/$name" ]; then
+      # Existence is recorded before copying. Incomplete backups are unusable.
+      printf 'present\n' > "$b/$name.state" || exit 1
+      cp -p "$target/$name" "$b/$name" || exit 1
+      cmp -s "$target/$name" "$b/$name" || exit 1
+    else printf 'absent\n' > "$b/$name.state" || exit 1; fi
+  done
+  : > "$b/complete"
+)
+restore_dsm_backups() (
+  backup_root="$1"
+  [ -f "$backup_root/complete" ] || exit 1
+  restore_failed=0
+  for b in "$backup_root"/[0-9]*; do
+    [ -f "$b/complete" ] && [ -f "$b/.path" ] || exit 1
+    target=$(cat "$b/.path")
+    safe_certificate_target "$target" || exit 1
+    case "$target" in /usr/syno/etc/certificate/*|/usr/local/etc/certificate/*) ;; *) exit 1;; esac
+    for name in privkey.pem cert.pem chain.pem fullchain.pem; do
+      case "$(cat "$b/$name.state")" in
+        present) atomic_copy "$b/$name" "$target/$name" preserve || restore_failed=1 ;;
+        absent) rm -f "$target/$name" || restore_failed=1 ;;
+        *) restore_failed=1 ;;
+      esac
+    done
+  done
+  [ "$restore_failed" = 0 ]
+)
+safe_certificate_target() (
+  checked="$1"
+  case "$checked" in /usr/syno/etc/certificate/*|/usr/local/etc/certificate/*) ;; *) exit 1;; esac
+  # Refuse package-writable directories and symlink ancestors before writing
+  # private keys or rollback data as root.
+  while [ "$checked" != / ]; do
+    [ -d "$checked" ] && [ ! -L "$checked" ] && [ "$(stat -c %u "$checked")" = 0 ] &&
+      [ -z "$(find "$checked" -maxdepth 0 \( -perm -020 -o -perm -002 \) -print)" ] || exit 1
+    checked=${checked%/*}; [ -n "$checked" ] || checked=/
+  done
+)
+atomic_copy() (
+  src="$1"; dst="$2"; mode="$3"
+  temp=$(mktemp "${dst}.sadler.XXXXXXXX") || exit 1
+  trap 'rm -f "$temp"' EXIT
+  cp -p "$src" "$temp" || exit 1
+  [ "$mode" = preserve ] || chmod "$mode" "$temp" || exit 1
+  mv -f "$temp" "$dst"
+)
+
+
+copy_live_to_dsm_target() (
+  target="$1"
+  safe_certificate_target "$target" || exit 1
+  atomic_copy "$LIVE/key.pem" "$target/privkey.pem" 0600 &&
+  atomic_copy "$LIVE/cert.pem" "$target/cert.pem" 0644 &&
+  atomic_copy "$LIVE/ca.pem" "$target/chain.pem" 0644 &&
+  atomic_copy "$LIVE/fullchain.pem" "$target/fullchain.pem" 0644
+)
+
+reload_mailplus_if_needed() {
+  targets="$1"
+  dovecot_target="/usr/local/etc/certificate/MailPlus-Server/dovecot"
+
+  if ! grep -Fxq "$dovecot_target" "$targets" 2>/dev/null; then
+    write_public mailplus_reload "Not required"
+    return 0
+  fi
+
+  SYNOPKG="/usr/syno/bin/synopkg"
+  if [ ! -x "$SYNOPKG" ]; then
+    write_public mailplus_reload "Required — synopkg unavailable"
+    fail "Certificate was deployed, but MailPlus Server could not be restarted because synopkg was not found" "deploy"
+  fi
+
+  # Do not start a package that the administrator has intentionally stopped.
+  if ! "$SYNOPKG" is_onoff MailPlus-Server >/dev/null 2>&1; then
+    log "MailPlus Dovecot certificate was updated, but MailPlus Server is not running; restart skipped"
+    write_public mailplus_reload "Not running — restart skipped"
+    return 0
+  fi
+
+  write_public message "Restarting MailPlus Server to reload the IMAP certificate"
+  write_public mailplus_reload "Restarting"
+  log "MailPlus Dovecot certificate was updated; restarting MailPlus Server so IMAP reloads the renewed certificate"
+
+  if ! "$SYNOPKG" restart MailPlus-Server >>"$LOG" 2>&1; then
+    write_public mailplus_reload "Restart failed"
+    fail "Certificate was deployed, but MailPlus Server restart failed" "deploy"
+  fi
+
+  if ! "$SYNOPKG" is_onoff MailPlus-Server >/dev/null 2>&1; then
+    write_public mailplus_reload "Restart completed, package not running"
+    fail "Certificate was deployed and MailPlus restart completed, but MailPlus Server is not running" "deploy"
+  fi
+
+  write_public mailplus_reload "Restarted successfully"
+  log "MailPlus Server restarted successfully; Dovecot should now serve the renewed certificate"
+}
+
+replace_existing_slot_local() {
+  id="$1"
+  archive="/usr/syno/etc/certificate/_archive/$id"
+  [ -d "$archive" ] || fail "DSM certificate archive directory not found for id=$id" "deploy"
+  [ -s "$archive/cert.pem" ] || fail "DSM archive certificate is missing for id=$id" "deploy"
+  validate_live_keypair || fail "New certificate and private key do not match" "deploy"
+
+  old_fp=$(cert_fp_normalized "$archive/cert.pem" || true)
+  new_fp=$(cert_fp_normalized "$LIVE/cert.pem" || true)
+  [ -n "$old_fp" ] && [ -n "$new_fp" ] || fail "Unable to fingerprint DSM certificate during replacement" "deploy"
+
+
+  [ -x /usr/syno/bin/synow3tool ] || fail "Synology synow3tool is required" deploy
+  mkdir -p "$ROOT_STATE/dsm-backups"
+  backup_root=$(mktemp -d "$ROOT_STATE/dsm-backups/txn.XXXXXXXX")
+  targets="$backup_root/targets"
+  printf '%s\n' "$archive" > "$targets"
+  for base in /usr/syno/etc/certificate /usr/local/etc/certificate; do
+    [ -d "$base" ] || continue
+    find "$base" -name cert.pem -type f 2>/dev/null | while IFS= read -r cf; do
+      case "$cf" in */_archive/*) continue;; esac
+      fp=$(cert_fp_normalized "$cf")
+      if [ -n "$fp" ] && [ "$fp" = "$old_fp" ]; then dirname "$cf"; fi
+    done >> "$targets"
+  done
+  sort -u "$targets" -o "$targets"
+  write_public deployment_method "Local cert-store replacement"
+  idx=0
+  while IFS= read -r target; do
+    idx=$((idx + 1))
+    backup_dsm_target "$target" "$backup_root" "$idx" || fail "Backup failed before any DSM files were changed" deploy
+  done < "$targets"
+  : > "$backup_root/complete"
+  printf '%s\n' "$backup_root" > "$ROOT_STATE/transaction.pending"
+  sync
+  while IFS= read -r target; do
+    copy_live_to_dsm_target "$target" || rollback_failure "Certificate copy failed"
+    [ "$(cert_fp_normalized "$target/cert.pem")" = "$new_fp" ] || rollback_failure "Certificate verification failed"
+  done < "$targets"
+  /usr/syno/bin/synow3tool --gen-all >> "$LOG" 2>&1 || rollback_failure "DSM certificate regeneration failed"
+  /usr/syno/bin/synow3tool --nginx=reload >> "$LOG" 2>&1 || rollback_failure "DSM web-service reload failed"
+  [ "$(cert_fp_normalized "$archive/cert.pem")" = "$new_fp" ] || rollback_failure "DSM archive verification failed"
+  # Persist restart work before committing the file transaction. It survives
+  # worker crashes and is retried even if the archive already matches.
+  cp "$targets" "$ROOT_STATE/reload.pending"
+  remember_pending_deployment "$new_fp" || fail "Unable to record pending DSM deployment" deploy
+  sync
+  rm -f "$ROOT_STATE/transaction.pending"
+  write_public last_dsm_backup "$backup_root"
+  finish_pending_reload
+  log "Local DSM certificate replacement completed and verified"
+
+}
+
+rollback_failure() {
+  reason="$1"
+  if recover_transaction; then
+    fail "$reason; previous certificate files restored" deploy
+  else fail "$reason; recovery is incomplete. Keep the package installed and inspect the retained backup." recovery; fi
+}
+recover_transaction() {
+  [ -s "$ROOT_STATE/transaction.pending" ] || return 0
+  recovery_backup=$(cat "$ROOT_STATE/transaction.pending")
+  case "$recovery_backup" in "$ROOT_STATE"/dsm-backups/txn.*) ;; *) return 1;; esac
+  restore_dsm_backups "$recovery_backup" || return 1
+  /usr/syno/bin/synow3tool --gen-all >> "$LOG" 2>&1 || return 1
+  /usr/syno/bin/synow3tool --nginx=reload >> "$LOG" 2>&1 || return 1
+  cp "$recovery_backup/targets" "$ROOT_STATE/reload.pending" || return 1
+  rm -f "$ROOT_STATE/deployment-history.pending"
+  rm -f "$ROOT_STATE/transaction.pending"
+  log "Recovered an interrupted DSM certificate transaction"
+}
+finish_pending_reload() {
+  [ -s "$ROOT_STATE/reload.pending" ] || return 0
+  reload_mailplus_if_needed "$ROOT_STATE/reload.pending"
+  rm -f "$ROOT_STATE/reload.pending"
+}
+remember_pending_deployment() {
+  # Keep evidence of an actual change across a failed reload/verification.
+  # Only a later matching check after recovery may complete this history.
+  printf '%s\n' "$1" > "$WORK/deployment-history.pending" || return 1
+  mv -f "$WORK/deployment-history.pending" "$ROOT_STATE/deployment-history.pending"
+}
+complete_deployment_history() {
+  [ -s "$ROOT_STATE/deployment-history.pending" ] || return 0
+  [ ! -e "$ROOT_STATE/transaction.pending" ] && [ ! -e "$ROOT_STATE/reload.pending" ] || return 0
+  [ "$(cat "$ROOT_STATE/deployment-history.pending")" = "$1" ] || return 0
+  write_public last_deploy "$(now_iso)" || return 1
+  rm -f "$ROOT_STATE/deployment-history.pending"
+}
+list_dsm_certificate() {
+  WEBAPI=/usr/syno/bin/synowebapi
+  [ -x "$WEBAPI" ] || return 1
+  # DSM prints an execution trace even for successful reads. Keep those out
+  # of the recurring status log, but retain stderr when the read fails.
+  if resp=$($WEBAPI --exec-fastwebapi api=SYNO.Core.Certificate.CRT method=list version=1 2>"$WORK/dsm-list.stderr"); then :; else
+    cat "$WORK/dsm-list.stderr" >> "$LOG"
+    log "DSM certificate list command failed"
+    return 1
+  fi
+  if printf '%s' "$resp" | "$JQ" -e '.success==true and (.data.certificates|type=="array")' >/dev/null 2>>"$WORK/dsm-list.stderr"; then :; else
+    cat "$WORK/dsm-list.stderr" >> "$LOG"
+    log "DSM certificate list response was rejected or malformed"
+    return 1
+  fi
+  rm -f "$WORK/dsm-list.stderr"
+  managed_id=""
+  [ ! -f "$ROOT_STATE/dsm-id" ] || managed_id=$(cat "$ROOT_STATE/dsm-id")
+  cert=$(printf '%s' "$resp" | "$JQ" -c --arg id "$managed_id" '[.data.certificates[] | select(.id==$id)] | if length==1 then .[0] else empty end')
+  if [ -z "$cert" ]; then
+    matches=$(printf '%s' "$resp" | "$JQ" -c --arg desc "$CERT_DESC" '[.data.certificates[] | select(.desc==$desc)]')
+    [ "$(printf '%s' "$matches" | "$JQ" length)" -le 1 ] || return 2
+    cert=$(printf '%s' "$matches" | "$JQ" -c '.[0] // empty')
+  fi
+  if [ -z "$cert" ]; then
+    recovery_find_fingerprint_match "$resp" || return $?
+  fi
+  id=""; is_default=unknown
+  if [ -n "$cert" ]; then
+    id=$(printf '%s' "$cert" | "$JQ" -r '.id // ""')
+    case "$id" in ''|*[!A-Za-z0-9_-]*) return 1;; esac
+    is_default=$(printf '%s' "$cert" | "$JQ" -r 'if .is_default==true then "true" elif .is_default==false then "false" else "unknown" end')
+    printf '%s\n' "$id" > "$ROOT_STATE/dsm-id"
+  fi
+}
+refresh_dsm_metadata() {
+  write_public dsm_cert_id ""
+  write_public dsm_default unknown
+  write_public dsm_match unknown
+  write_public dsm_checked_epoch "$(date +%s)"
+  if list_dsm_certificate; then :; else
+    write_public dsm_detail "DSM certificate list failed or description is ambiguous"
+    return 1
+  fi
+  if [ -z "$id" ]; then
+    write_public dsm_match "not found"
+    write_public dsm_detail "Managed certificate is not present in DSM"
+    return 0
+  fi
+  write_public dsm_cert_id "$id"
+  write_public dsm_default "$is_default"
+  live_fp=$(cert_fp_normalized "$LIVE/cert.pem")
+  dsm_fp=$(cert_fp_normalized "/usr/syno/etc/certificate/_archive/$id/cert.pem")
+  if [ -n "$live_fp" ] && [ -n "$dsm_fp" ]; then
+    if [ "$live_fp" = "$dsm_fp" ]; then
+      write_public dsm_match yes
+      write_public last_verified "$(now_iso)"
+      complete_deployment_history "$live_fp" || return 1
+    else
+      write_public dsm_match no
+    fi
+  fi
+  write_public dsm_detail "Checked $(now_iso)"
+}
+deploy_dsm() {
+  [ -f "$RUN_MARKER" ] || fail "Package is stopping; deployment was deferred" deploy
+  validate_certificate "$LIVE" || fail "Stored certificate is invalid, expired, or differs from Settings" deploy
+  refresh_dsm_metadata || fail "Cannot read DSM certificates; duplicate descriptions must be resolved before deployment" deploy
+  dsm_deployment_changed=0
+  if [ -n "$id" ]; then
+    if [ "$(read_status_value dsm_match)" != yes ]; then
+      replace_existing_slot_local "$id"
+      dsm_deployment_changed=1
+    fi
+  else
+    as_default=false; [ "$DEFAULT_ON_CREATE" != 1 ] || as_default=true
+    # synowebapi's certificate-import endpoint expects as_default as a JSON
+    # string on the tested DSM 7.4.1 interface, not a JSON boolean. Encode
+    # both values explicitly so new-slot creation works for either policy.
+    desc_json=$(printf '%s' "$CERT_DESC" | "$JQ" -Rs .)
+    as_default_json=$(printf '%s' "$as_default" | "$JQ" -Rs .)
+    write_public deployment_method "Local DSM WebAPI creation"
+    resp=$($WEBAPI --exec-fastwebapi api=SYNO.Core.Certificate method=import version=1 \
+      "key_tmp=\"$LIVE/key.pem\"" "cert_tmp=\"$LIVE/cert.pem\"" "inter_cert_tmp=\"$LIVE/ca.pem\"" \
+      "desc=$desc_json" "as_default=$as_default_json" 2>>"$LOG") || fail "DSM certificate import command failed" deploy
+    printf '%s' "$resp" | "$JQ" -e '.success==true' >/dev/null || fail "DSM certificate import was rejected" deploy
+    remember_pending_deployment "$(cert_fp_normalized "$LIVE/cert.pem")" || fail "Unable to record pending DSM deployment" deploy
+    sync
+    dsm_deployment_changed=1
+  fi
+  finish_pending_reload
+  refresh_dsm_metadata || fail "DSM deployment could not be verified" deploy
+  [ "$(read_status_value dsm_match)" = yes ] || fail "DSM certificate fingerprint does not match the deployed certificate" deploy
+  if [ "$dsm_deployment_changed" = 1 ]; then
+    log "DSM certificate deployment verified"
+  else
+    log "DSM certificate match verified; no deployment needed"
+  fi
+}
+
+run_test() {
+  load_config
+  ensure_engine
+  write_status "running" "Preparing Let's Encrypt staging DNS-01 test" "test"
+  register_account "$STAGE_CFG" "$STAGE_CERTS" "$LE_STAGE"
+  issue_cert "$STAGE_CFG" "$STAGE_CERTS" "$LE_STAGE" 1
+  write_public message "Staging certificate issued successfully"
+  log "Staging validation succeeded; certificate was not deployed"
+  write_public last_staging "$(now_iso)"
+  write_status "success" "Staging validation succeeded; DSM was not changed" "test"
+}
+run_apply() {
+  load_config
+  ensure_engine
+  adopt_legacy_profile
+  list_dsm_certificate || fail "DSM certificate target is unavailable or ambiguous. Resolve it before issuance." apply
+  write_status running "Preparing production certificate" apply
+  sig=$(config_signature)
+  if [ -f "$APPLIED_SIG" ] && [ "$(cat "$APPLIED_SIG")" = "$sig" ] && validate_certificate "$LIVE"; then
+    log "Configuration unchanged; reusing the valid production certificate"
+    refresh_cert_metadata
+  else
+    register_account "$PROD_CFG" "$PROD_CERTS" "$LE_PROD"
+    issue_cert "$PROD_CFG" "$PROD_CERTS" "$LE_PROD" 0
+    install_live_files
+    printf '%s\n' "$sig" > "$APPLIED_SIG"
+    [ "$ISSUE_RC" -ne 0 ] || write_public last_issue "$(now_iso)"
+  fi
+  deploy_dsm
+  cp "$CONFIG" "$ROOT_STATE/applied-settings.json"
+  publish_applied_signature
+  write_public restore_requires_issue no
+  write_status success "Production certificate applied and verified in DSM" apply
+}
+run_force() {
+  load_config
+  ensure_engine
+  write_status "running" "Forcing an early production certificate renewal" "force"
+  register_account "$PROD_CFG" "$PROD_CERTS" "$LE_PROD"
+  issue_cert "$PROD_CFG" "$PROD_CERTS" "$LE_PROD" 1
+  install_live_files
+  printf '%s\n' "$(config_signature)" > "$APPLIED_SIG"
+  write_public last_issue "$(now_iso)"
+  write_public last_renewal "$(now_iso)"
+  deploy_dsm
+  cp "$CONFIG" "$ROOT_STATE/applied-settings.json"
+  publish_applied_signature
+  write_public restore_requires_issue no
+  write_status "success" "Early renewal completed and certificate applied to DSM" "force"
+}
+run_redeploy() {
+  # No ACME contact or Cloudflare credentials are needed for recovery.
+  load_public_config
+  validate_certificate "$LIVE" || fail "No valid matching production certificate is available; use Issue / Apply" redeploy
+  write_status running "Re-deploying the existing certificate to DSM" redeploy
+  refresh_cert_metadata
+  deploy_dsm
+  cp "$CONFIG" "$ROOT_STATE/applied-settings.json"
+  publish_applied_signature
+  write_public restore_requires_issue no
+  write_status success "Existing certificate re-deployed and verified in DSM" redeploy
+}
+load_public_config() {
+  CERT_DESC=$(read_setting cert_desc)
+  DEFAULT_ON_CREATE=$(read_setting default_on_create)
+  KEY_TYPE=$(read_setting key_type)
+  [ -n "$CERT_DESC" ] && [ "${#CERT_DESC}" -le 80 ] || fail "Certificate description is not configured" preflight
+  "$JQ" -er '.domains[]' "$CONFIG" > "$WORK/domains" || fail "Domains are not configured" preflight
+}
+sha_file() {
+  [ -s "$1" ] && sha256sum "$1" | awk '{print $1}' || printf '%s' "missing"
+}
+run_check() {
+  [ ! -f "$ROOT_STATE/wizard-apply.pending" ] || fail "Wizard application recovery is pending; retry Apply & Save or use Issue / Apply before renewal" check
+  load_config
+  ensure_engine
+  adopt_legacy_profile
+  [ -s "$APPLIED_SIG" ] || { write_status idle "No production certificate has been applied for this configuration" check; return 0; }
+  [ "$(cat "$APPLIED_SIG")" = "$(config_signature)" ] || fail "Settings changed; use Issue / Apply before automatic renewal" check
+  write_status running "Checking renewal for the active certificate" check
+  register_account "$PROD_CFG" "$PROD_CERTS" "$LE_PROD"
+  issue_cert "$PROD_CFG" "$PROD_CERTS" "$LE_PROD" 0
+  install_live_files
+  [ "$ISSUE_RC" -ne 0 ] || write_public last_renewal "$(now_iso)"
+  # Always reconcile deployment, including a previous import/reload failure.
+  deploy_dsm
+  write_status success "Renewal check complete; valid certificate verified in DSM" check
+}
+
+clear_log_file() {
+  : > "$LOG"
+  rm -f "$LOG.1"
+  publish_log
+  write_status success "SadlerACME log cleared" clear-log
+}
+
+complete_active_job() {
+  [ -n "$ACTIVE_JOB" ] || return 0
+  workflow_job_receipt 0 || true
+  write_public last_job "$ACTIVE_JOB"
+  write_public last_job_result completed
+  rm -f "$ROOT_STATE/active-job"
+  write_public active_job ""
+  ACTIVE_JOB=""
+}
+
+process_request() {
+  # DSM's systemd 219 PathExistsGlob watcher can miss a second path event when
+  # a new job arrives while this oneshot service is already active.  Rescan the
+  # inbox after every completed action so one invocation drains work queued
+  # during the preceding action instead of relying on another path activation.
+  while :; do
+    request=""
+    for candidate in "$INBOX"/*.job; do
+      [ -e "$candidate" ] || [ -L "$candidate" ] || continue
+      request="$candidate"
+      break
+    done
+    [ -n "$request" ] || return 0
+
+    jobname=${request##*/}
+    # Claim even malformed names, so a rejected job cannot spin the path unit.
+    mv -T "$request" "$WORK/claimed" || fail "Unable to claim queued request" worker
+    jobstem=${jobname%.job}
+    case "$jobstem" in ''|*[!0-9a-f-]*) fail "Rejected an invalid queue filename" worker;; esac
+    [ "${#jobname}" -le 80 ] || fail "Rejected an invalid queue filename" worker
+    [ -f "$WORK/claimed" ] && [ ! -L "$WORK/claimed" ] || fail "Rejected a non-regular queue request" worker
+    [ "$(stat -c %s "$WORK/claimed")" -le 1048576 ] || fail "Queued request is too large" worker
+    # A producer may still have an open fd: operate on a bounded private copy.
+    dd if="$WORK/claimed" of="$WORK/job.json" bs=1048577 count=1 2>/dev/null
+    rm -f "$WORK/claimed"
+    "$JQ" -e 'type=="object" and (.action|type=="string") and (.config|type=="object")' "$WORK/job.json" >/dev/null || fail "Malformed queued request" worker
+    action=$("$JQ" -r .action "$WORK/job.json")
+    case "$action" in restore) ;; *) [ "$(stat -c %s "$WORK/job.json")" -le 32768 ] || fail "Queued request is too large" worker;; esac
+    "$JQ" '.config' "$WORK/job.json" > "$WORK/config.json"
+    CONFIG="$WORK/config.json"
+    ACTIVE_JOB="$jobname"
+    printf '%s\n' "$ACTIVE_JOB" > "$ROOT_STATE/active-job"
+    write_public active_job "$ACTIVE_JOB"
+    [ -f "$RUN_MARKER" ] || fail "Package stopped; queued request cancelled" worker
+    [ ! -f "$ROOT_STATE/uninstall-ready" ] || fail "Uninstall is prepared; queued request cancelled" worker
+    dispatch_action "$action"
+    complete_active_job
+  done
+}
+worker() {
+  process_request
+}
+
+scheduled() {
+  if [ -f "$ROOT_STATE/wizard-apply.pending" ]; then
+    write_public next_auto_epoch ""
+    return 0
+  fi
+  [ ! -f "$ROOT_STATE/setup-temporary" ] || return 0
+  [ -f "$RUN_MARKER" ] || return 0
+  [ ! -f "$ROOT_STATE/uninstall-ready" ] || return 0
+  CERT_DESC=$(read_setting cert_desc)
+  refresh_cert_metadata
+  refresh_dsm_metadata || true
+  scheduler_status
+  auto=$(read_setting auto_renew)
+  if [ "$auto" != 1 ]; then
+    return 0
+  fi
+  now=$(date +%s)
+  printf '%s\n' "$now" > "$AUTO_STAMP"
+  dispatch_action check
+}
+
+scheduler_status() {
+  [ "$(id -u)" = "0" ] || {
+    echo "SadlerACME scheduler status check must run as root" >&2
+    exit 1
+  }
+
+  desired_state="Missing"
+  desired_detail="Preferred boot-up bootstrap task is not installed"
+  desired_event="—"
+  desired_owner="—"
+  desired_command="—"
+
+  db="/usr/syno/etc/esynoscheduler/esynoscheduler.db"
+  SQLITE="$(command -v sqlite3 2>/dev/null || true)"
+  if [ -n "$SQLITE" ] && [ -r "$db" ]; then
+    if row=$(scheduler_read_rows "SELECT enable,event,owner,operation,operation_type FROM task WHERE task_name='SadlerACME Bootstrap';"); then :; else
+      desired_state="Unable to inspect"
+      desired_detail="DSM scheduler database read failed: $(scheduler_read_diagnostic)"
+      row=""
+    fi
+    if [ "$(printf '%s\n' "$row" | sed '/^$/d' | wc -l)" -gt 1 ]; then
+      desired_state="Ambiguous tasks"
+      desired_detail="Multiple SadlerACME Bootstrap tasks exist; resolve duplicates in DSM Task Scheduler"
+      row=""
+    fi
+    if [ -n "$row" ]; then
+      oldifs=$IFS; IFS='|'; set -- $row; IFS=$oldifs
+      enabled="${1:-}"; desired_event="${2:-}"; desired_owner="${3:-}"; desired_command="${4:-}"; op_type="${5:-}"
+      if [ "$enabled" = "1" ] && [ "$desired_event" = "bootup" ] && [ "$desired_owner" = "0" ] \
+        && [ "$desired_command" = "$SCHED_BOOT_COMMAND" ] && [ "$op_type" = "script" ]; then
+        desired_state="Installed and enabled"
+        desired_detail="Preferred root boot-up bootstrap task is configured correctly"
+      elif [ "$enabled" = "0" ] && [ "$desired_event" = "bootup" ] && [ "$desired_owner" = "0" ] \
+        && [ "$desired_command" = "$SCHED_BOOT_COMMAND" ] && [ "$op_type" = "script" ]; then
+        desired_state="Installed but disabled"
+        desired_detail="Bootstrap task exists with the expected command but is disabled"
+      else
+        desired_state="Incorrect configuration"
+        desired_detail="A task named SadlerACME Bootstrap exists but does not match the expected root boot-up task"
+      fi
+    fi
+  elif command -v esynoscheduler >/dev/null 2>&1; then
+    if ! event_out=$(esynoscheduler --list 2>/dev/null); then
+      desired_state="Unable to inspect"
+      desired_detail="DSM event scheduler query failed"
+    elif printf '%s\n' "$event_out" | grep -Fq "$SCHED_BOOT_NAME"; then
+      desired_state="Detected — details unavailable"
+      desired_detail="The bootstrap task name was found, but its full configuration could not be read"
+    else
+      desired_state="Missing"
+      desired_detail="Preferred boot-up bootstrap task is not installed"
+    fi
+  else
+    desired_state="Unable to inspect"
+    desired_detail="DSM event scheduler tools were not available"
+  fi
+
+  queue_state="$(systemd_unit_state pkg-sadleracme-queue.path)"
+  timer_state="$(systemd_unit_state pkg-sadleracme-renew.timer)"
+  refresh_renewal_deadline "$timer_state"
+
+  scheduler_changed=1
+  if [ "$(read_status_value scheduler_status)" = "$desired_state" ] &&
+    [ "$(read_status_value scheduler_detail)" = "$desired_detail" ] &&
+    [ "$(read_status_value scheduler_event)" = "$desired_event" ] &&
+    [ "$(read_status_value scheduler_owner)" = "$desired_owner" ] &&
+    [ "$(read_status_value scheduler_command)" = "$desired_command" ] &&
+    [ "$(read_status_value systemd_queue_state)" = "$queue_state" ] &&
+    [ "$(read_status_value systemd_timer_state)" = "$timer_state" ]; then
+    scheduler_changed=0
+  fi
+  write_public scheduler_status "$desired_state"
+  write_public scheduler_detail "$desired_detail"
+  write_public scheduler_event "$desired_event"
+  write_public scheduler_owner "$desired_owner"
+  write_public scheduler_command "$desired_command"
+  write_public systemd_queue_state "$queue_state"
+  write_public systemd_timer_state "$timer_state"
+  write_public scheduler_last_check "$(now_iso)"
+  if [ "$scheduler_changed" = 1 ]; then
+    log "Scheduler status changed bootstrap='$desired_state' queue=$queue_state timer=$timer_state"
+  fi
+
+}
+
+systemd_bootstrap() {
+  require_cmd systemctl
+  systemctl daemon-reload || fail "Unable to reload systemd units" bootstrap
+  lifecycle_resume
+  rm -f "$ROOT_STATE/uninstall-ready"
+  chmod 1770 "$INBOX"
+  write_public uninstall_ready no
+  systemctl restart pkg-sadleracme-queue.path || fail "Unable to start queue watcher" bootstrap
+  systemctl restart pkg-sadleracme-renew.timer || fail "Unable to start renewal timer" bootstrap
+  CERT_DESC=$(read_setting cert_desc)
+  refresh_cert_metadata
+  refresh_dsm_metadata || true
+  scheduler_status
+  write_public systemd_bootstrap_last "$(now_iso)"
+  [ "$(systemd_unit_state pkg-sadleracme-queue.path)" = active ] &&
+  [ "$(systemd_unit_state pkg-sadleracme-renew.timer)" = active ] || fail "Automation services did not become active" bootstrap
+  write_status success "Protected worker started; verify the bootstrap task uses the new command" bootstrap
+}
+
+
+secure_directory() {
+  sd="$1"; mode="$2"
+  if [ -e "$sd" ] || [ -L "$sd" ]; then
+    [ -d "$sd" ] && [ ! -L "$sd" ] && [ "$(stat -c %u "$sd")" = 0 ] || { echo "Unsafe root storage: $sd" >&2; exit 1; }
+    [ -z "$(find "$sd" -maxdepth 0 \( -perm -020 -o -perm -002 \) -print)" ] || { echo "Writable root storage: $sd" >&2; exit 1; }
+  else mkdir "$sd" || exit 1; fi
+  chmod "$mode" "$sd"
+}
+initialise() {
+  # Check every ancestor before creating privileged storage.
+  for parent in /usr /usr/local /usr/local/etc; do
+    [ -d "$parent" ] && [ ! -L "$parent" ] && [ "$(stat -c %u "$parent")" = 0 ] &&
+      [ -z "$(find "$parent" -maxdepth 0 \( -perm -020 -o -perm -002 \) -print)" ] || { echo "Unsafe storage ancestor: $parent" >&2; exit 1; }
+  done
+  secure_directory "$PROTECTED" 0755
+  secure_directory "$ROOT_STATE" 0700
+  secure_directory "$STATUS_DIR" 0755
+  # The inode belongs to root. Sticky mode lets the package enqueue files but
+  # prevents it from replacing this directory or moving root-owned entries.
+  if [ -L "$INBOX" ]; then echo "Unsafe inbox" >&2; exit 1; fi
+  mkdir -p "$INBOX"
+  [ "$(stat -c %u "$INBOX")" = 0 ] || exit 1
+  pkg_gid=$(stat -Lc %g "$ETC")
+  chgrp "$pkg_gid" "$INBOX"
+  require_cmd flock
+  exec 9>"$LOCK"
+  flock -w 1200 9 || { echo "Another worker is still active" >&2; exit 1; }
+  if [ -f "$ROOT_STATE/uninstall-ready" ]; then chmod 0700 "$INBOX"; else chmod 1770 "$INBOX"; fi
+  WORK=$(mktemp -d "$ROOT_STATE/work.XXXXXXXX")
+  trap 'on_exit $?' EXIT
+  trap 'exit 129' HUP
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
+  # Validate root prerequisites before bootstrap migration or recovery. Other
+  # actions retain their own tool checks, allowing queued errors to be consumed.
+  if [ "${1:-}" = systemd-bootstrap ]; then require_privileged_tools; fi
+  # Remove abandoned private scratch only after obtaining the shared lock.
+  for old in "$ROOT_STATE"/work.*; do [ "$old" = "$WORK" ] || rm -rf "$old"; done
+  if [ -s "$ROOT_STATE/active-job" ]; then
+    write_public last_job "$(cat "$ROOT_STATE/active-job")"
+    write_public last_job_result interrupted
+    write_status error "Previous job was interrupted; certificate transactions will be recovered before further work" recovery
+    ACTIVE_JOB=$(cat "$ROOT_STATE/active-job")
+    workflow_job_receipt 1 interrupted || true
+    ACTIVE_JOB=""
+    rm -f "$ROOT_STATE/active-job"
+  fi
+  CONFIG="$WORK/config.json"
+  snapshot_config
+  workflow_initialise
+  snapshot_config
+  migrate_deployment_history
+  # Legacy certificate import belongs to certificate operations, not worker
+  # startup. An untrusted old var/root/live must not prevent a validated JSON
+  # restore, status inspection, setup cleanup or uninstall preparation.
+  recover_transaction || fail "An interrupted DSM transaction could not be restored; inspect the retained backup" recovery
+  finish_pending_reload
+  configuration_lock || fail "Cannot lock wizard recovery" recovery
+  workflow_recover_pending || fail "Wizard application recovery could not complete; automatic renewal remains paused" recovery
+  configuration_unlock
+  publish_applied_signature
+  write_public worker_last_seen "$(now_iso)"
+  write_public worker_last_seen_epoch "$(date +%s)"
+  # Bounded private log retention. Certificate backups are retained for manual
+  # recovery and are listed in the release guide; no silent key deletion.
+  if [ -f "$LOG" ] && [ "$(stat -c %s "$LOG")" -gt 2097152 ]; then mv -f "$LOG" "$LOG.1"; fi
+}
+migrate_deployment_history() {
+  # Older workers also wrote last_deploy after checks that changed nothing.
+  # Preserve that ambiguous record privately and use it only as verification
+  # history. Never present it as a known actual deployment after upgrading.
+  [ ! -f "$ROOT_STATE/deployment-history-v2" ] || return 0
+  if [ -s "$STATUS_DIR/last_deploy" ]; then
+    [ -f "$ROOT_STATE/legacy-last-deploy" ] || cp "$STATUS_DIR/last_deploy" "$ROOT_STATE/legacy-last-deploy"
+    if [ ! -s "$STATUS_DIR/last_verified" ]; then
+      write_public last_verified "$(read_status_value last_deploy)"
+    fi
+  fi
+  rm -f "$STATUS_DIR/last_deploy"
+  : > "$ROOT_STATE/deployment-history-v2"
+}
+snapshot_config() {
+  if [ -f "$ETC/settings.json" ] && [ ! -L "$ETC/settings.json" ]; then
+    dd if="$ETC/settings.json" of="$CONFIG" bs=32769 count=1 2>/dev/null
+    [ "$(stat -c %s "$CONFIG")" -le 32768 ] && "$JQ" -e 'type=="object"' "$CONFIG" >/dev/null || fail "Invalid settings file" preflight
+  else
+    # Legacy files are data, never sourced. Account tokens are passed on stdin.
+    for field in email domains key_type cert_desc cf_token default_on_create auto_renew; do
+      if [ -f "$ETC/$field" ] && [ ! -L "$ETC/$field" ]; then head -c 16384 "$ETC/$field"; fi
+      printf '\000'
+    done | "$JQ" -Rs 'split("\u0000") | {email:.[0]|rtrimstr("\n"),domains:(.[1]|split("\n")|map(select(length>0))),key_type:.[2]|rtrimstr("\n"),cert_desc:.[3]|rtrimstr("\n"),cf_token:.[4]|rtrimstr("\n"),default_on_create:.[5]|rtrimstr("\n"),auto_renew:.[6]|rtrimstr("\n"),dns_sleep:"60"}' > "$CONFIG"
+  fi
+}
+migrate_legacy_live() {
+  [ ! -f "$ROOT_STATE/migration-v1" ] || return 0
+  # Import PEM data only. Never execute the old engine, account.conf, domain
+  # hooks, or shell configuration below the package-owned var directory.
+  migration_var=$(readlink -f "$VAR") || fail "Cannot locate legacy certificate storage; original data retained" migration
+  legacy="$migration_var/root/live"
+  if [ -s "$legacy/cert.pem" ] && [ ! -e "$LIVE" ]; then
+    migration_pkg_uid=$(stat -Lc %u "$ETC") || fail "Cannot identify the package account for legacy migration" migration
+    # Root-owned old PEMs are attributable only when their complete physical
+    # directory chain is protected. A root-owned inode reached through a
+    # package-writable parent could instead be another service's private key.
+    migration_root_source=1
+    checked="$legacy"
+    while [ "$checked" != / ]; do
+      if [ ! -d "$checked" ] || [ -L "$checked" ] || [ "$(stat -c %u "$checked")" != 0 ] ||
+          [ -n "$(find "$checked" -maxdepth 0 \( -perm -020 -o -perm -002 \) -print)" ]; then
+        migration_root_source=0
+        break
+      fi
+      checked=${checked%/*}; [ -n "$checked" ] || checked=/
+    done
+    generation=$(mktemp -d "$ROOT_STATE/live-gen.XXXXXXXX")
+    for pem in key.pem cert.pem ca.pem fullchain.pem; do
+      [ -f "$legacy/$pem" ] && [ ! -L "$legacy/$pem" ] || fail "Legacy certificate migration requires four regular PEM files" migration
+      # The pathname can change at any point. Check and copy the SAME opened
+      # inode, so replacing a package-owned file with a root-key symlink cannot
+      # make privileged bytes enter LIVE and subsequently a recovery download.
+      (
+        exec 5<"$legacy/$pem" || exit 1
+        [ -f /proc/self/fd/5 ] || exit 1
+        migration_source_uid=$(stat -Lc %u /proc/self/fd/5) || exit 1
+        if [ "$migration_source_uid" = 0 ]; then
+          [ "$migration_root_source" = 1 ] || exit 1
+        else
+          [ "$migration_pkg_uid" != 0 ] && [ "$migration_source_uid" = "$migration_pkg_uid" ] || exit 1
+        fi
+        [ "$(stat -Lc %s /proc/self/fd/5)" -le 131072 ] || exit 1
+        head -c 131072 <&5 > "$generation/$pem" || exit 1
+      ) || fail "Legacy certificate source cannot be verified safely. Original data was retained. Restore a SadlerACME backup, or use administrator-assisted manual recovery instead of automatic migration." migration
+    done
+    validate_pair "$generation" || fail "Legacy production certificate/key cannot be validated; original data retained" migration
+    ln -s "${generation##*/}" "$LIVE"
+    log "Imported legacy production certificate data; original var/root retained"
+  fi
+  : > "$ROOT_STATE/migration-v1"
+}
+adopt_legacy_profile() {
+  # Rebuild a minimal safe renewal profile from validated PEM data. No old
+  # shell hooks or writable account configuration cross the root boundary.
+  [ "$ECC" = 1 ] && profile="$PROD_CERTS/${PRIMARY}_ecc" || profile="$PROD_CERTS/$PRIMARY"
+  [ ! -f "$profile/$PRIMARY.conf" ] || return 0
+  [ -s "$LIVE/cert.pem" ] || return 0
+  validate_certificate "$LIVE" || return 0
+  mkdir -p "$profile" "$PROD_CFG"
+  cp "$LIVE/key.pem" "$profile/$PRIMARY.key"
+  cp "$LIVE/cert.pem" "$profile/$PRIMARY.cer"
+  cp "$LIVE/ca.pem" "$profile/ca.cer"
+  cp "$LIVE/fullchain.pem" "$profile/fullchain.cer"
+  expiry=$("$OPENSSL" x509 -in "$LIVE/cert.pem" -enddate -noout | sed 's/^notAfter=//')
+  expiry=$(date_to_epoch "$expiry") || fail "Cannot read legacy certificate expiry" migration
+  next_renew=$((expiry - 2592000))
+  alt=$(tail -n +2 "$WORK/domains" | paste -sd, -)
+  [ -n "$alt" ] || alt=no
+  # Values below were validated domain/key literals or fixed constants.
+  {
+    printf "Le_Domain='%s'\nLe_Alt='%s'\nLe_Webroot='dns_cf'\nLe_API='%s'\nLe_Keylength='%s'\n" "$PRIMARY" "$alt" "$LE_PROD" "$ACME_KEY"
+    printf "Le_NextRenewTime='%s'\nLe_NextRenewTimeStr='Imported certificate renewal window'\n" "$next_renew"
+  } > "$profile/$PRIMARY.conf"
+  printf '%s\n' "$(config_signature)" > "$APPLIED_SIG"
+  log "Rebuilt the active renewal profile from the existing production certificate"
+}
+dispatch_action() {
+  # Preserve the legacy ownership/inode checks before using or exporting old
+  # certificate data. Management and recovery actions do not consume that
+  # data; successful validated restoration supplies a new protected LIVE.
+  case "$1" in
+    test|apply|check|force|redeploy|wizard-test|wizard-apply|backup) migrate_legacy_live;;
+  esac
+  case "$1" in
+    test) run_test;; apply) run_apply; workflow_apply_completed;; check) run_check;; force) run_force; workflow_apply_completed;; redeploy) run_redeploy; workflow_apply_completed;;
+    scheduler-status|refresh)
+      CERT_DESC=$(read_setting cert_desc)
+      refresh_cert_metadata
+      refresh_dsm_metadata || true
+      scheduler_status
+      [ "$1" != scheduler-status ] || write_status success "Scheduler and certificate status refreshed" scheduler-status
+      ;;
+    clear-log) clear_log_file;;
+    wizard-test) run_wizard_test;;
+    wizard-apply) run_wizard_apply;;
+    backup) backup_export;;
+    restore) run_restore;;
+    backup-delete) backup_delete;;
+    finish-setup) finish_setup;;
+    cancel-setup) cancel_setup;;
+    prepare-uninstall) prepare_uninstall;;
+    *) fail "Unknown queued action" worker;;
+  esac
+}
+on_exit() {
+  result="$1"
+  trap - EXIT HUP INT TERM
+  if [ "$result" -ne 0 ] && [ "$ERROR_REPORTED" = 0 ]; then
+    write_status error "Worker failed or was interrupted (exit $result); any incomplete deployment will be recovered on the next run" worker
+  fi
+  if [ -n "$ACTIVE_JOB" ]; then
+    workflow_job_receipt "$result" || true
+    write_public last_job "$ACTIVE_JOB"
+    [ "$result" -eq 0 ] && write_public last_job_result completed || write_public last_job_result failed
+    rm -f "$ROOT_STATE/active-job"
+  fi
+  write_public active_job ""
+  publish_log
+  [ -z "$WORK" ] || rm -rf "$WORK"
+  exit "$result"
+}
+
+# @WORKER_EXTENSIONS@
+
+# All entry points share the same privilege checks and kernel-released lock.
+case "${1:-}" in worker|scheduled|systemd-bootstrap|systemd-setup|setup-expired|expire-transfers|scheduler-status|refresh|clear-log|test|apply|check|force|redeploy|prepare-uninstall) ;; *) echo "Unknown SadlerACME worker action" >&2; exit 2;; esac
+initialise "$1"
+case "$1" in
+  worker) worker;;
+  scheduled) scheduled;;
+  systemd-bootstrap) systemd_bootstrap;;
+  systemd-setup) systemd_setup;;
+  setup-expired) setup_expired;;
+  expire-transfers) recovery_expire_transfers;;
+  *) [ -f "$RUN_MARKER" ] || fail "Package is stopped" worker; dispatch_action "$1";;
+esac

@@ -1,0 +1,18 @@
+test_automation_is_three_peer_cards (__main__.LayoutCommon.test_automation_is_three_peer_cards) ... ok
+test_check_now_is_in_renewal_panel_footer (__main__.LayoutCommon.test_check_now_is_in_renewal_panel_footer) ... ok
+test_common_layout_has_compact_dashboard_breakpoints (__main__.LayoutCommon.test_common_layout_has_compact_dashboard_breakpoints) ... ok
+test_dashboard_status_actions_are_consolidated (__main__.LayoutCommon.test_dashboard_status_actions_are_consolidated) ... ok
+test_normal_page_grids_share_layout_css (__main__.LayoutCommon.test_normal_page_grids_share_layout_css) ... ok
+test_peer_cards_stretch_to_equal_height (__main__.LayoutCommon.test_peer_cards_stretch_to_equal_height) ... ok
+test_peer_headers_have_consistent_minimum_height (__main__.LayoutCommon.test_peer_headers_have_consistent_minimum_height) ... ok
+test_release_examples_are_generic (__main__.LayoutCommon.test_release_examples_are_generic) ... ok
+test_responsive_navigation_is_retained (__main__.LayoutCommon.test_responsive_navigation_is_retained) ... ok
+test_shared_card_system_is_in_layout_css (__main__.LayoutCommon.test_shared_card_system_is_in_layout_css) ... ok
+test_shared_density_is_compact_without_tiny_text (__main__.LayoutCommon.test_shared_density_is_compact_without_tiny_text) ... ok
+test_wizard_polish_for_fresh_setup (__main__.LayoutCommon.test_wizard_polish_for_fresh_setup) ... ok
+test_workflow_css_does_not_own_recovery_page_grid (__main__.LayoutCommon.test_workflow_css_does_not_own_recovery_page_grid) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.002s
+
+OK

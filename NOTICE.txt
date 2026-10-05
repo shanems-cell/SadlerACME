@@ -1,0 +1,39 @@
+SadlerACME
+Original project by Shane Sadler
+Copyright (C) 2026 Shane Sadler
+
+SadlerACME-specific source code, packaging, documentation and assets are
+licensed under the GNU General Public License, version 3 only
+(SPDX-License-Identifier: GPL-3.0-only), unless a file states otherwise.
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+The full licence is included in LICENSE in the source distribution and
+ui/LICENSE.txt in the installed package. The application also displays
+the licence in the About tab.
+
+Keep applicable copyright and licence notices when redistributing, and
+identify modified versions as required by the GPL. This notice adds no
+extra licence conditions or advertising requirement.
+
+Third-party component
+---------------------
+acme.sh 3.1.5 and its Cloudflare DNS plugin (dns_cf.sh)
+Project: acmesh-official/acme.sh and its contributors
+Source: https://github.com/acmesh-official/acme.sh/tree/3.1.5
+
+The bundled upstream source files are unmodified and retain their own
+licence and attribution. Their supplied GPLv3 licence is included at
+vendor/acme.sh-3.1.5/LICENSE.md in the source distribution and
+share/acme.sh-3.1.5/LICENSE.md in the installed package.
+
+Shane Sadler's original-project credit refers to SadlerACME, not authorship
+of acme.sh, its DNS plugin or Synology DSM. No third-party endorsement is
+implied.

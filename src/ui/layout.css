@@ -1,0 +1,1367 @@
+/*
+ * SADLERACME SHARED STYLES — loaded before workflow.css.
+ *
+ * Change shared colours, fonts and standard gaps in the :root section.
+ * Reusable buttons, forms, cards, navigation, status colours and log surfaces
+ * belong here, including their use in the wizard. workflow.css only adds
+ * workflow arrangements; it must not create a second button/theme system.
+ *
+ * Index: 1. Theme  2. Base  3. Header/navigation  4. Pages/cards/rows
+ *        5. Controls/forms  6. Logs  7. Recovery pages  8. Dialogs/status
+ *        9. Named presentation helpers  10. Responsive layouts
+ *
+ * Desktop first-launch dimensions are JavaScript, in SadlerACME.js.
+ */
+
+/* 1. Shared theme: the main maintenance entry point. */
+
+:root {
+  color-scheme: dark;
+  --bg: #171c21;
+  --surface: #1a2026;
+  --surface2: #202830;
+  --surface3: #252e37;
+  --chrome: #2a333d;
+  --nav: #1c232a;
+  --line: #37424d;
+  --line-soft: rgba(72,87,100,.46);
+  --text: #edf1f4;
+  --muted: #aebac4;
+  --accent: #3f729e;
+  --accent2: #447aa6; /* Slightly deeper hover keeps white button text legible. */
+  --selected: #283d50;
+  --good: #8bcba0;
+  --warn: #dfbb79;
+  --bad: #e9a0a0;
+  --blue: #99bfdf;
+  --radius: 4px;
+  --page-gap: 10px;
+  --panel-pad: 9px;
+  --control-radius: 3px;
+  --action-gap: 8px;
+  --font-body: Arial,Helvetica,sans-serif;
+  --font-mono: ui-monospace,Consolas,monospace;
+  --font-small: 12px;
+  --field-bg: #13191e;
+  --field-border: #475360;
+  --log-bg: #11171c;
+  --log-text: #d6e0e7;
+  --status-error-border: #895156;
+  --status-error-text: #f0b1b1;
+  --status-success-border: #487056;
+  --status-success-text: #a5dfb6;
+  --badge-bg: #29323a;
+  --badge-text: #d5dde3;
+  --badge-success-bg: #20342a;
+  --badge-success-border: #3a5f48;
+  --badge-run-bg: #233849;
+  --badge-run-text: #b4d9f5;
+  --badge-run-border: #426683;
+  --badge-queue-bg: #3a3324;
+  --badge-queue-text: #edcf91;
+  --badge-queue-border: #655435;
+  --badge-error-bg: #3d282a;
+  --badge-error-border: #704348;
+  --badge-idle-border: #46525e;
+  --nav-selected-text: #f4f7fa;
+  --icon: #b2bac2;
+  --card-border: #3b4854;
+  --card-heading-border: #46535f;
+  --card-heading-text: #b8d3e8;
+  --secondary-border: #414d59;
+  --secondary-hover: #36434f;
+  --warn-button-bg: #76562e;
+  --warn-button-border: #957140;
+  --warn-button-hover: #8a6738;
+  --note-bg: #2e2a22;
+  --note-border: #ad8952;
+  --note-text: #e1d8c8;
+  --danger-bg: #352529;
+  --danger-border: #b66b71;
+  --label: #c3ccd4;
+  --placeholder: #98a6b2;
+  --paused-outline: #ac874b;
+  --removal-border: #5c4940;
+  --removal-bg: #29251f;
+  --removal-text: #d8cec0;
+  --dialog-border: #4c5a67;
+  --inline-bg: #192128;
+  --warning-border: #83693d;
+  --warning-text: #e8c788;
+  --button-text: #ffffff;
+  --scrim: rgba(0,0,0,.66);
+  --shadow: rgba(0,0,0,.4);
+  --spinner-track: rgba(255,255,255,.35);
+  --spinner-tip: #ffffff;
+  --footer-bg: rgba(32,40,48,.55);
+  --footer-action-bg: rgba(32,40,48,.45);
+}
+
+/* Light mode: DSM-inspired colours owned by SadlerACME, not DSM internals.
+ * Layout, font sizes and spacing are identical in both modes. Dark is default. */
+:root[data-theme="light"] {
+  color-scheme: only light;
+  --bg: #f6f8fb;
+  --surface: #ffffff;
+  --surface2: #f3f6fa;
+  --surface3: #edf2f8;
+  --chrome: #eaf0f7;
+  --nav: #f0f4f9;
+  --line: #ced8e4;
+  --line-soft: #e1e7ee;
+  --text: #28384b;
+  --muted: #53657a;
+  --accent: #216bc4;
+  --accent2: #185aa9;
+  --selected: #e3efff;
+  --good: #246c3d;
+  --warn: #86600f;
+  --bad: #ae2638;
+  --blue: #245f9e;
+  --field-bg: #ffffff;
+  --field-border: #a7b6c8;
+  --log-bg: #f8fafc;
+  --log-text: #243548;
+  --status-error-border: #cf7180;
+  --status-error-text: #a12336;
+  --status-success-border: #79a68a;
+  --status-success-text: #21623a;
+  --badge-bg: #edf1f6;
+  --badge-text: #41546a;
+  --badge-success-bg: #edf8ef;
+  --badge-success-border: #91b79b;
+  --badge-run-bg: #e8f2ff;
+  --badge-run-text: #205b97;
+  --badge-run-border: #93b6dc;
+  --badge-queue-bg: #fff6df;
+  --badge-queue-text: #76520b;
+  --badge-queue-border: #d2b476;
+  --badge-error-bg: #fff0f2;
+  --badge-error-border: #d9a0a8;
+  --badge-idle-border: #bdcad8;
+  --nav-selected-text: #164f90;
+  --icon: #567086;
+  --card-border: #cbd6e3;
+  --card-heading-border: #c9d5e4;
+  --card-heading-text: #3a5678;
+  --secondary-border: #c5d1df;
+  --secondary-hover: #dce7f4;
+  --warn-button-bg: #84601e;
+  --warn-button-border: #84601e;
+  --warn-button-hover: #6e4d13;
+  --note-bg: #fff8e9;
+  --note-border: #b88d36;
+  --note-text: #76520d;
+  --danger-bg: #fff1f2;
+  --danger-border: #bd5a6a;
+  --label: #344b65;
+  --placeholder: #64758a;
+  --paused-outline: #9b731f;
+  --removal-border: #d8bb86;
+  --removal-bg: #fff8e9;
+  --removal-text: #76520d;
+  --dialog-border: #b8c6d7;
+  --inline-bg: #f3f6fa;
+  --warning-border: #c49c50;
+  --warning-text: #78530a;
+  --button-text: #ffffff;
+  --scrim: rgba(24,39,56,.35);
+  --shadow: rgba(24,39,56,.22);
+  --spinner-track: #b0c2d8;
+  --spinner-tip: #216bc4;
+  --footer-bg: #f3f6fa;
+  --footer-action-bg: #f3f6fa;
+}
+
+/* 2. Base element defaults. */
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.4 var(--font-body);
+  overflow-wrap: anywhere;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+a {
+  color: var(--blue);
+}
+
+p {
+  margin: 0 0 7px;
+}
+
+form {
+  margin: 0;
+  min-width: 0;
+}
+
+details,
+pre {
+  min-width: 0;
+}
+
+summary {
+  cursor: pointer;
+}
+
+pre {
+  overflow-wrap: anywhere;
+}
+
+.wrap {
+  min-width: 0;
+  height: 100vh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 3. Header and navigation. */
+
+.head {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface2);
+}
+
+.head-start {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.head-start>div {
+  min-width: 0;
+}
+
+.head-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.sub {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 1px;
+}
+
+.head .small {
+  font-size: 11px;
+}
+
+#menuToggle {
+  display: none;
+  flex: 0 0 auto;
+  width: 34px;
+  min-width: 34px;
+  padding: 5px 7px;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: capitalize;
+  border: 1px solid var(--line);
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+.badge.ok {
+  background: var(--badge-success-bg);
+  color: var(--status-success-text);
+  border-color: var(--badge-success-border);
+}
+
+.badge.run {
+  background: var(--badge-run-bg);
+  color: var(--badge-run-text);
+  border-color: var(--badge-run-border);
+}
+
+.badge.queue {
+  background: var(--badge-queue-bg);
+  color: var(--badge-queue-text);
+  border-color: var(--badge-queue-border);
+}
+
+.badge.bad {
+  background: var(--badge-error-bg);
+  color: var(--status-error-text);
+  border-color: var(--badge-error-border);
+}
+
+.badge.idle {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  border-color: var(--badge-idle-border);
+}
+
+.app-layout {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.topnav.tabs {
+  flex: 0 0 auto;
+  display: block;
+  min-width: 0;
+  padding: 0 12px;
+  background: var(--nav);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav-group {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  min-width: 0;
+  padding: 0;
+  overflow-x: auto;
+}
+
+.tabbtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: auto;
+  min-width: 0;
+  min-height: 34px;
+  margin: 0;
+  padding: 6px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 400;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tabbtn>span {
+  min-width: 0;
+}
+
+.tabbtn:hover {
+  background: var(--chrome);
+}
+
+.tabbtn.active {
+  background: var(--selected);
+  border-bottom-color: var(--blue);
+  color: var(--nav-selected-text);
+}
+
+.nav-icon {
+  display: block;
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  color: var(--icon);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 4. Shared page rhythm, panels and label/value rows. */
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  min-width: 0;
+  padding: 10px 16px 14px;
+}
+
+.tabpane {
+  flex: 0 0 auto;
+  display: none;
+  min-width: 0;
+}
+
+.tabpane.active {
+  display: block;
+}
+
+.page-heading {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  margin: 0 0 9px;
+  padding: 0 0 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+.page-heading>* {
+  min-width: 0;
+}
+
+.page-heading h1,
+.page-heading h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--blue);
+}
+
+.page-heading p {
+  flex-basis: 100%;
+  margin: 1px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.page-heading.with-actions {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  gap: 4px 12px;
+}
+
+.page-heading.with-actions p {
+  margin: 2px 0 0;
+}
+
+.theme-toggle {
+  white-space: nowrap;
+}
+
+.theme-toggle .nav-icon {
+  color: inherit;
+}
+
+.theme-icon-dark,
+:root[data-theme="light"] .theme-icon-light {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-icon-dark {
+  display: block;
+}
+
+/* Shared panels. Every normal page uses the same border, title strip, rows and footer.
+ * Peer cards in the same grid row stretch to one common height; stacked cards keep natural height. */
+
+.card {
+  min-width: 0;
+  padding: var(--panel-pad);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.card>h2 {
+  display: flex;
+  align-items: center;
+  min-height: 31px;
+  margin: calc(-1 * var(--panel-pad)) calc(-1 * var(--panel-pad)) 8px;
+  padding: 6px 9px;
+  border-bottom: 1px solid var(--card-heading-border);
+  background: var(--surface3);
+  color: var(--card-heading-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: .01em;
+}
+
+.card>h3 {
+  margin: 0 0 8px;
+  color: var(--blue);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tabpane>.card+.card,
+.tabpane>.dashboard+.card {
+  margin-top: var(--page-gap);
+}
+
+.section-grid,
+.automation-grid,
+.dashboard,
+.workflow-recovery-grid {
+  display: grid;
+  gap: var(--page-gap);
+  align-items: stretch;
+  min-width: 0;
+}
+
+.section-grid,
+.workflow-recovery-grid {
+  grid-template-columns: repeat(2,minmax(0,1fr));
+}
+
+.automation-grid {
+  grid-template-columns: repeat(3,minmax(0,1fr));
+}
+
+.dashboard {
+  grid-template-columns: repeat(3,minmax(0,1fr));
+}
+
+.section-grid>.card,
+.automation-grid>.card,
+.dashboard>.card,
+.workflow-recovery-grid>.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+
+.section-grid>.card>.card-footer,
+.automation-grid>.card>.card-footer,
+.workflow-recovery-grid>.card>.card-footer {
+  margin-top: auto;
+}
+
+/* Shared label/value rows */
+
+.kvgrid {
+  display: grid;
+  grid-template-columns: minmax(112px,.72fr) minmax(0,1.28fr);
+  gap: 0;
+}
+
+.kvgrid>.k,
+.kvgrid>.v {
+  padding: 5px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.kvgrid>.k {
+  padding-right: 10px;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.kvgrid>.v {
+  min-width: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.kvgrid>:nth-last-child(-n+2) {
+  border-bottom: 0;
+}
+
+.multiline {
+  white-space: pre-line;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px 9px;
+  margin: 8px calc(-1 * var(--panel-pad)) calc(-1 * var(--panel-pad));
+  padding: 7px var(--panel-pad);
+  border-top: 1px solid var(--line);
+  background: var(--footer-bg);
+}
+
+.card>.actions {
+  margin: 8px calc(-1 * var(--panel-pad)) calc(-1 * var(--panel-pad));
+  padding: 7px var(--panel-pad);
+  border-top: 1px solid var(--line);
+  background: var(--footer-action-bg);
+}
+
+.actionsCard {
+  margin-top: var(--page-gap);
+}
+
+/* Dashboard: compact enough to fit a maximised DSM window without losing structure. */
+
+.dashboard-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: var(--page-gap);
+  padding: 7px 9px;
+}
+
+.dashboard-status .status-summary {
+  min-width: 0;
+  flex: 1 1 420px;
+}
+
+.statusline {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
+
+.status-tools>span {
+  max-width: 360px;
+  text-align: right;
+}
+
+.dashboard .kvgrid>.k,
+.dashboard .kvgrid>.v {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.dashboard .kvgrid>.k {
+  font-size: 12px;
+}
+
+.dashboard .card-footer {
+  margin-top: auto;
+}
+
+.renewal-actions {
+  justify-content: flex-start;
+}
+
+/* 5. Shared controls and forms. */
+
+.muted,
+.workflow-small {
+  color: var(--muted);
+}
+
+.small,
+.workflow-small {
+  font-size: var(--font-small);
+}
+
+.good {
+  color: var(--good);
+  font-weight: 500;
+}
+
+.badtext {
+  color: var(--bad);
+  font-weight: 500;
+}
+
+.actions,
+.workflow-buttons {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--action-gap);
+}
+
+.actions>form {
+  max-width: 100%;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 29px;
+  max-width: 100%;
+  padding: 3px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--control-radius);
+  background: var(--accent);
+  color: var(--button-text);
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--accent2);
+}
+
+.btn.secondary {
+  background: var(--chrome);
+  border-color: var(--secondary-border);
+  color: var(--text);
+}
+
+.btn.secondary:hover {
+  background: var(--secondary-hover);
+}
+
+.btn.warn {
+  background: var(--warn-button-bg);
+  border-color: var(--warn-button-border);
+}
+
+.btn.warn:hover {
+  background: var(--warn-button-hover);
+}
+
+.btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.note {
+  padding: 8px 10px;
+  background: var(--note-bg);
+  border-left: 3px solid var(--note-border);
+  color: var(--note-text);
+  margin-top: 8px;
+}
+
+.workerbad {
+  background: var(--danger-bg);
+  border-left-color: var(--danger-border);
+}
+
+/* Shared forms */
+
+.settingsgrid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 8px 12px;
+}
+
+.settingsgrid>div {
+  min-width: 0;
+}
+
+.full {
+  grid-column: 1/-1;
+}
+
+label {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--label);
+  font-weight: 400;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--field-border);
+  border-radius: var(--control-radius);
+  background: var(--field-bg);
+  color: var(--text);
+  line-height: 1.45;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
+textarea {
+  min-height: 64px;
+  resize: vertical;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: auto;
+  flex: 0 0 auto;
+  accent-color: var(--accent);
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.check input {
+  margin: 3px 0 0;
+}
+
+.check label {
+  margin: 0;
+}
+
+/* Certificate form: three useful rows on desktop, natural DOM order when
+ * stacked. The domains area shares a row with two short setup options. */
+.certificate-grid {
+  grid-template-columns: minmax(0,1.1fr) minmax(0,1fr);
+  grid-template-areas: "description key" "domains options" "email token" "save save";
+  gap: 12px 18px;
+  align-items: start;
+}
+
+.cert-description {
+  grid-area: description;
+}
+.cert-key {
+  grid-area: key;
+}
+.cert-domains {
+  grid-area: domains;
+}
+.cert-options {
+  grid-area: options;
+}
+.cert-email {
+  grid-area: email;
+}
+.cert-token {
+  grid-area: token;
+}
+.cert-save {
+  grid-area: save;
+}
+
+.cert-domains textarea {
+  height: 88px;
+}
+
+.cert-options {
+  display: grid;
+  gap: 12px;
+}
+
+.cert-options input[type="number"] {
+  max-width: 120px;
+}
+
+.certificate-grid .check {
+  max-width: 440px;
+}
+
+/* This row is not a card footer: explanation shares spare horizontal space. */
+.certificate-action-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+}
+
+.certificate-action-line>.actions {
+  flex: 0 1 auto;
+}
+
+.certificate-action-line>.action-explanation {
+  flex: 1 1 420px;
+  margin: 0;
+}
+
+.action-help {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: var(--font-small);
+}
+
+.action-help p {
+  margin-top: 7px;
+}
+
+/* 6. Logs: one reusable surface for the page and wizard. */
+
+.logToolbar {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 9px;
+}
+
+.logToolbar input {
+  flex: 1 1 200px;
+  max-width: 360px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* Shared log surface; workflow.css owns the wizard log height only. */
+
+.log,
+.workflow-log {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius);
+  background: var(--log-bg);
+  font: 13px/1.6 var(--font-mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow: auto;
+}
+
+.log {
+  flex: 1 1 0;
+  min-height: 120px;
+  height: auto;
+  margin: 0;
+  color: var(--log-text);
+}
+
+/* Only Logs fills remaining content height. Ordinary pages keep natural
+ * height and the main content scrolls when their content genuinely needs it. */
+#tab-logs.active {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 260px;
+  min-height: 260px;
+}
+
+.logs-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 200px;
+}
+
+.logToolbar {
+  flex: 0 0 auto;
+}
+
+.log.paused {
+  outline: 1px solid var(--paused-outline);
+}
+
+.flash {
+  margin-bottom: var(--page-gap);
+  padding: 9px 11px;
+  background: var(--surface2);
+  border-left: 3px solid var(--blue);
+}
+
+.divider {
+  height: 1px;
+  margin: 8px 0;
+  background: var(--line);
+}
+
+/* 7. Backup / restore and uninstall use the common page panel system. */
+
+.workflow-section-actions {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.workflow-section-actions p:last-child {
+  margin-bottom: 0;
+}
+
+.workflow-facts {
+  margin: 0;
+}
+
+.workflow-facts>div {
+  display: grid;
+  grid-template-columns: minmax(108px,.72fr) minmax(0,1.28fr);
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.workflow-facts>div:last-child {
+  border-bottom: 0;
+}
+
+.workflow-facts dt {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.workflow-facts dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.workflow-removal-note {
+  padding: 9px 10px;
+  margin: var(--page-gap) 0 0;
+  border: 1px solid var(--removal-border);
+  border-left: 3px solid var(--warn);
+  border-radius: var(--radius);
+  background: var(--removal-bg);
+  color: var(--removal-text);
+  font-size: 12.5px;
+}
+
+/* 8. Shared dialogs and transient status. */
+
+.modalback {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: var(--scrim);
+}
+
+.modalback.open {
+  display: flex;
+}
+
+.modalbox {
+  width: min(560px,100%);
+  max-height: calc(100vh - 44px);
+  overflow: auto;
+  padding: 18px;
+  border: 1px solid var(--dialog-border);
+  border-radius: 5px;
+  background: var(--surface2);
+  box-shadow: 0 18px 60px var(--shadow);
+}
+
+.modalbox h2 {
+  margin: 0 0 9px;
+  color: var(--blue);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.modalbox .field {
+  margin-top: 14px;
+}
+
+.modalactions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--action-gap);
+  margin-top: 16px;
+}
+
+.inlineStatus,
+.workflow-status {
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius);
+}
+
+.inlineStatus {
+  display: none;
+  margin-top: 9px;
+  padding: 8px 10px;
+  background: var(--inline-bg);
+}
+
+.inlineStatus.show {
+  display: block;
+}
+
+.inlineStatus.err,
+.workflow-status.error {
+  border-color: var(--status-error-border);
+  color: var(--status-error-text);
+}
+
+.inlineStatus.warn {
+  border-color: var(--warning-border);
+  color: var(--warning-text);
+}
+
+.inlineStatus.ok,
+.workflow-status.success {
+  border-color: var(--status-success-border);
+  color: var(--status-success-text);
+}
+
+code {
+  max-width: 100%;
+  padding: 2px 5px;
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius);
+  background: var(--field-bg);
+  font: 12px/1.6 var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+code.command {
+  display: inline-block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.spinner {
+  display: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  border: 2px solid var(--spinner-track);
+  border-top-color: var(--spinner-tip);
+  border-radius: 50%;
+  animation: spin .75s linear infinite;
+}
+
+.checking .spinner {
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 9. Named presentation helpers: replaces decorative inline styles in index.cgi.
+ * The one remaining inline display guard is dynamic action visibility, not theme. */
+
+.field-help {
+  margin-top: 5px;
+}
+
+.action-explanation {
+  margin-top: 10px;
+}
+
+.scheduler-explanation {
+  margin-top: 9px;
+}
+
+.disclosure-heading {
+  font-weight: 700;
+}
+
+.manual-help-note {
+  margin-top: 10px;
+}
+
+.approval-help {
+  margin-top: 8px;
+}
+
+.licence-text {
+  white-space: pre-wrap;
+  overflow: auto;
+  max-height: 360px;
+  font-size: var(--font-small);
+}
+
+/* 10. Responsive layouts. Keep equal-height peer cards on the same grid row;
+ * narrow screens stack naturally. These rules do not size the DSM window. */
+
+@media (max-width:1180px) {
+  .automation-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+  .automation-grid>.card:first-child {
+    grid-column: 1/-1;
+  }
+  .dashboard {
+    gap: 10px;
+  }
+  .dashboard .kvgrid {
+    grid-template-columns: minmax(100px,.68fr) minmax(0,1.32fr);
+  }
+}
+
+@media (max-width:920px) {
+  .dashboard {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+  .dashboard>.card:last-child {
+    grid-column: 1/-1;
+  }
+  .section-grid,
+  .workflow-recovery-grid {
+    gap: 10px;
+  }
+}
+
+@media (max-width:820px) {
+  #menuToggle {
+    display: inline-flex;
+  }
+  .topnav.tabs {
+    display: none;
+    padding: 7px 9px;
+  }
+  .wrap.menu-open .topnav.tabs {
+    display: block;
+  }
+  .topnav .nav-group {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 4px;
+    overflow: visible;
+  }
+  .topnav .tabbtn {
+    width: 100%;
+    min-height: 36px;
+    padding: 7px 9px;
+    border: 0;
+    border-radius: var(--control-radius);
+    white-space: normal;
+  }
+  .topnav .tabbtn.active {
+    background: var(--selected);
+  }
+  .content {
+    padding: 12px;
+  }
+  .certificate-grid {
+    grid-template-areas: "description" "key" "domains" "options" "email" "token" "save";
+  }
+  .dashboard,
+  .section-grid,
+  .automation-grid,
+  .workflow-recovery-grid,
+  .settingsgrid {
+    grid-template-columns: minmax(0,1fr);
+  }
+  .dashboard>.card:last-child,
+  .automation-grid>.card:first-child {
+    grid-column: auto;
+  }
+  .dashboard-status {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .status-tools {
+    justify-content: flex-start;
+  }
+  .status-tools>span {
+    text-align: left;
+    max-width: none;
+  }
+}
+
+@media (max-width:570px) {
+  .head {
+    padding: 9px 11px;
+    gap: 7px;
+  }
+  .head-start {
+    gap: 8px;
+  }
+  .head-actions {
+    gap: 5px;
+    flex-wrap: wrap;
+    max-width: 155px;
+  }
+  .topnav .nav-group {
+    grid-template-columns: minmax(0,1fr);
+  }
+  .topnav .tabbtn {
+    gap: 7px;
+    padding: 8px;
+  }
+  .content {
+    padding: 11px 9px 18px;
+  }
+  .kvgrid,
+  .workflow-facts>div {
+    grid-template-columns: minmax(0,1fr);
+    gap: 0;
+  }
+  .kvgrid>.k,
+  .workflow-facts dt {
+    padding: 6px 0 1px;
+    border-bottom: 0;
+  }
+  .kvgrid>.v,
+  .workflow-facts dd {
+    padding: 0 0 6px;
+    border-bottom: 1px solid var(--line-soft);
+    margin-bottom: 0;
+  }
+  .kvgrid>.v:last-child,
+  .workflow-facts>div:last-child dd {
+    border-bottom: 0;
+  }
+  .page-heading {
+    margin-bottom: 10px;
+  }
+  .page-heading.with-actions {
+    grid-template-columns: minmax(0,1fr);
+  }
+  .page-heading.with-actions .btn {
+    justify-self: start;
+  }
+  .modalback {
+    padding: 12px;
+  }
+  .modalbox {
+    padding: 15px;
+    max-height: calc(100vh - 24px);
+  }
+  .card-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .spinner {
+    animation-duration: 1.5s;
+  }
+}

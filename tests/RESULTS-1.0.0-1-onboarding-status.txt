@@ -1,0 +1,12 @@
+test_domains_make_configuration_nonpristine (__main__.OnboardingStatus.test_domains_make_configuration_nonpristine) ... ok
+test_empty_hint_does_not_write_settings_or_queue (__main__.OnboardingStatus.test_empty_hint_does_not_write_settings_or_queue) ... ok
+test_existing_failure_not_rewritten_by_cgi_hint (__main__.OnboardingStatus.test_existing_failure_not_rewritten_by_cgi_hint) ... ok
+test_previous_worker_makes_configuration_nonpristine (__main__.OnboardingStatus.test_previous_worker_makes_configuration_nonpristine) ... ok
+test_retained_certificate_makes_configuration_nonpristine (__main__.OnboardingStatus.test_retained_certificate_makes_configuration_nonpristine) ... ok
+test_stopped_package_not_reclassified_as_running (__main__.OnboardingStatus.test_stopped_package_not_reclassified_as_running) ... ok
+test_token_makes_configuration_nonpristine (__main__.OnboardingStatus.test_token_makes_configuration_nonpristine) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.827s
+
+OK

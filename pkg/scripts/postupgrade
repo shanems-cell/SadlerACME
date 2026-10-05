@@ -1,0 +1,4 @@
+#!/bin/sh
+# The package account cannot inspect private keys. The verified root bootstrap
+# owns migration and publishes fresh certificate metadata.
+exit 0

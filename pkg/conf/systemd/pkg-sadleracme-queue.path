@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch SadlerACME queued jobs
+
+[Path]
+PathExistsGlob=/usr/local/etc/sadleracme/inbox/*.job
+Unit=pkg-sadleracme-worker.service
+
+[Install]
+WantedBy=multi-user.target
