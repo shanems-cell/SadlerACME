@@ -1,7 +1,15 @@
-# Remaining release checks — SadlerACME 1.0.0-1
+# Remaining beta coverage — SadlerACME 1.0.0-1
 
-The remaining immediate check is a non-destructive update/open/installed-help smoke test of the exact release installer, followed by explicit publication approval. Use RELEASE-GUIDE.md.
+There are **no remaining immediate release-blocking checks** for Public Beta 1. The exact installer passed its final non-destructive DSM upgrade/open/installed-help smoke test.
 
-Do not repeat production issuance, staging, renewal, backup or uninstall solely for this documentation/metadata promotion. Historical functional and native UI evidence is carried forward separately from fresh release-local checks.
+Do not repeat production issuance, staging, forced renewal, backup/restore or uninstall solely for publication. Historical functional and native UI evidence is carried forward separately from fresh release-local checks because those functional components are unchanged.
 
-Broader model/DSM coverage and long-running or emergency-path acceptance remain limited as described in RELEASE-NOTES.md. A prior non-due renewal check is not evidence of a naturally due renewal. Very high zoom and extreme viewport sizes are not certified as universally accessible.
+Broader beta coverage remains useful after publication:
+
+- additional genuine x86_64 Synology models and DSM 7 point releases;
+- naturally due unattended renewal over time;
+- normal persistence across future DSM updates;
+- emergency scheduler/API recovery paths on recoverable test systems; and
+- additional feedback at unusual browser zoom and viewport sizes.
+
+These are beta coverage goals, not blockers for the first public-beta release.
